@@ -7,13 +7,15 @@ var app = express();
 
 // Configure Stormpath.
 app.use(stormpath.init(app, {
-  application: process.env.STORMPATH_URL,
-  redirectUrl: '/dashboard',
+  apiKeyId:     process.env.STORMPATH_API_KEY_ID,
+  apiKeySecret: process.env.STORMPATH_API_KEY_SECRET,
+  secretKey:    process.env.STORMPATH_SECRET_KEY,
+  application:  process.env.STORMPATH_URL,
 }));
 
 // Generate a simple home page.
 app.get('/', function(req, res) {
-  res.send("Hey there! Thanks for visting the site!"+
+  res.send("Hey NNILS there! Thanks for visting the site!"+
            "Be sure to <a href='/login'>login</a>!");
 });
 

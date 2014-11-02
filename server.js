@@ -18,8 +18,8 @@ app.use(stormpath.init(app, {
   secretKey:    process.env.STORMPATH_SECRET_KEY,
   application:  process.env.STORMPATH_URL,
   //views
-  registrationView: __dirname + '/pages/register.jade',
-  loginView: __dirname + '/pages/login.jade',
+  //registrationView: __dirname + '/pages/register.jade',
+  //loginView: __dirname + '/pages/login.jade',
 }));
 
 app.use(require('less-middleware')(__dirname + '/public'));

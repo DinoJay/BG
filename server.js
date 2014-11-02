@@ -27,7 +27,8 @@ app.use(express.static(path.join(__dirname, '/public')));
 
 // Generate a simple home page.
 app.get('/', function(req, res) {
-  res.render('index', {title: 'Home', user: req.user});
+  //res.render('index', {title: 'Home', user: req.user});
+  res.send("Hey there! Thanks for visting the site! Be sure to <a href='/login'>login</a>!");
 });
 
 // Generate a simple dashboard page.

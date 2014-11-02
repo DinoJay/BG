@@ -20,6 +20,7 @@ app.use(stormpath.init(app, {
   //views
   registrationView: __dirname + '/pages/register.jade',
   loginView: __dirname + '/pages/login.jade',
+  redirectUrl: '/dashboard',
 }));
 
 app.use(require('less-middleware')(__dirname + '/public'));

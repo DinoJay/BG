@@ -12,12 +12,12 @@ block body
           via <a href="https://stormpath.com">Stormpath</a>, 
           then log you in automatically
         form.bs-example.form-horizontal(method='post')
+          input(name='_csrf', type='hidden', value=csrfToken)
           if error
             .alert.alert-dismissable.alert-danger.register-fail
               button.close(data-dismiss='alert', type='button') &times;
               p.
                 #{error}
-          input(name='_csrf', type='hidden', value=csrfToken)
 
           if app.get('stormpathEnableGivenName')
             .form-group

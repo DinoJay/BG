@@ -7,6 +7,11 @@ var bodyParser = require('body-parser');
 var methodOverride = require('method-override');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
+var nodejsx     = require('node-jsx').install();
+
+// client code bundling
+var webpackMiddleware = require('webpack-dev-middleware');
+var webpack = require('webpack');
 
 var routes = require('./routes');
 var tasks = require('./routes/tasks');
@@ -91,6 +96,32 @@ app.param('task_id', function(req, res, next, taskId) {
     return next();
   });
 });
+
+app.use(webpackMiddleware(webpack({
+    // webpack options
+    // webpackMiddleware takes a Compiler object as first parameter
+    // which is returned by webpack(...) without callback.
+  entry: {
+    dashboard: path.join(__dirname, 'scripts/dashboard.jsx'),
+    tasks: path.join(__dirname, 'scripts/tasks.jsx')
+  },
+    output: {
+        path: path.join(__dirname, 'scripts/'),
+        filename: '[name].bundle.js',
+        // no real path is required, just pass "/"
+        // but it will work with other paths too.
+    },
+    resolve: {
+      extensions: ['', '.js', '.jsx']
+    },
+    module: {
+      loaders: [
+            { test: /\.jsx$/, loader: "jsx" }
+      ]
+    }
+})));
+
+
 // Configure Stormpath.
 app.use(stormpath.init(app, {
   apiKeyId:     process.env.STORMPATH_API_KEY_ID,
@@ -108,7 +139,6 @@ app.use(stormpath.init(app, {
 app.use(require('less-middleware')(__dirname + '/public'));
 app.use(express.static(path.join(__dirname, '/public')));
 
-
 // Generate a simple home page.
 app.get('/', function(req, res) {
   res.render('index', {title: 'Home', user: req.user});
@@ -116,17 +146,19 @@ app.get('/', function(req, res) {
 
 // Generate a simple dashboard page.
 app.get('/dashboard', stormpath.loginRequired, function(req, res) {
-  res.send('Hi: ' + req.user.email + '. Logout <a href="/logout">here</a>');
+  res.render('dashboard', {});
+  //res.send('Hi: ' + req.user.email + '. Logout <a href="/logout">here</a>');
 });
 
 app.get('/tasks', tasks.list);
 app.post('/tasks', tasks.markAllCompleted);
 app.post('/tasks', tasks.add);
 app.post('/tasks/:task_id', tasks.markCompleted);
-//app.delete('/tasks/:task_id', tasks.del);
+app.delete('/tasks/:task_id', tasks.del);
 app.get('/tasks/completed', tasks.completed);
 
 // Listen for incoming requests and serve them.
 app.listen(app.get('port'), function (err) {
   console.log("Server started; listening on port " + app.get('port'));
+  console.log('Point your browser to http://localhost:'+app.get('port'));
 });

@@ -2,53 +2,51 @@ extends layout
 
 block body
 
-   .register
-    .row
-      .col-lg-6.col-lg-offset-3
+  #welcome.jumbotron.row
+    .col-lg-8.col-lg-offset-2
+      form.bs-example.form-horizontal(method='post')
         fieldset
-          legend Create a New Account
-        p.
-          Registering for this site will create a new user account for you
-          via <a href="https://stormpath.com">Stormpath</a>, 
-          then log you in automatically
-        form.bs-example.form-horizontal(method='post')
-          input(name='_csrf', type='hidden', value=csrfToken)
-          if error
-            .alert.alert-dismissable.alert-danger.register-fail
-              button.close(data-dismiss='alert', type='button') &times;
-              p.
-                #{error}
+          legend.col-lg-6 Create a new Account
+        input(name='_csrf', type='hidden', value=csrfToken)
+        if error
+          .alert.alert-dismissable.alert-danger.register-fail
+            button.close(data-dismiss='alert', type='button') &times;
+            p.
+              #{error}
+          p.
+            Create a new user account for you 
+            via <a href="https://stormpath.com">Stormpath</a>, then log you 
+            in automatically
+        if app.get('stormpathEnableGivenName')
+          .form-group
+            label.col-lg-4.control-label(for='givenName') First Name
+            .col-lg-6
+              input#username.form-control(placeholder='First Name', 
+              name='givenName', required=app.get('stormpathRequireGivenName') ? true : false, 
+              type='text')
 
-          if app.get('stormpathEnableGivenName')
-            .form-group
-              label.col-lg-4.control-label(for='givenName') First Name
-              .col-lg-4
-                input#username.form-control(placeholder='First Name', 
-                name='givenName', required=app.get('stormpathRequireGivenName') ? true : false, 
-                type='text')
+        if app.get('stormpathEnableSurname')
+          .form-group
+            label.col-lg-4.control-label(for='surname') Last Name
+            .col-lg-6
+              input#username.form-control(placeholder='Last Name', 
+              name='surname', required=app.get('stormpathRequireSurname') ? true : false, 
+          type='text')
 
-          if app.get('stormpathEnableSurname')
-            .form-group
-              label.col-lg-4.control-label(for='surname') Last Name
-              .col-lg-4
-                input#username.form-control(placeholder='Last Name', 
-                name='surname', required=app.get('stormpathRequireSurname') ? true : false, 
-            type='text')
+          .form-group
+            label.col-lg-4.control-label(for='email') Email
+            .col-lg-6
+              input#username.form-control(placeholder='Email', 
+                name='email', required='true', 
+                type='email')
 
-            .form-group
-              label.col-lg-4.control-label(for='email') Email
-              .col-lg-4
-                input#username.form-control(placeholder='Email', 
-                  name='email', required='true', 
-                  type='email')
+          .form-group
+            label.col-lg-4.control-label(for='password') Password
+            .col-lg-6
+              input#password.form-control(placeholder='Password', 
+              name='password', 
+          required='true', type='password')
 
-            .form-group
-              label.col-lg-4.control-label(for='password') Password
-              .col-lg-4
-                input#password.form-control(placeholder='Password', 
-                name='password', 
-            required='true', type='password')
-
-            form-group
-              .col-lg-10.col-lg-offset-4
-          button.btn.btn-primary(type='submit') Create Account
+          form-group
+            .col-lg-10.col-lg-offset-4
+             button.btn.btn-primary(type='submit') Create Account

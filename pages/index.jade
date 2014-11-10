@@ -1,7 +1,6 @@
 extends layout
 
 block body
-
   #welcome.jumbotron
     h1 Welcome to Stormpath-Express
     p.lead.
@@ -17,6 +16,9 @@ block body
       li Lastly, integrate Stormpath into your own sites!
     <br/>
     <br/>
+    p.bigbutton
+      a.bigbutton.btn.btn-lg.btn-danger(href='/register', role='button') Register
+  .container
     h2 What this Sample App Demonstrates
     br
     p.
@@ -31,5 +33,3 @@ block body
       instructions found in this project's <code>README.md</code> file. For more
       information, please follow the guide on this project's
       <a href="https://github.com/stormpath/stormpath-express-sample">GitHub page</a>.
-    p.bigbutton
-      a.bigbutton.btn.btn-lg.btn-danger(href='/register', role='button') Register

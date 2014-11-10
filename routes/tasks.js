@@ -1,7 +1,7 @@
 exports.list = function(req, res, next){
-  req.db.tasks.find({
+  req.db.model.find({
     completed: false
-  }).toArray(function(error, tasks){
+  }, function(error, tasks){
     if (error) return next(error);
     res.render('tasks', {
       title: 'Todo List',
@@ -11,12 +11,15 @@ exports.list = function(req, res, next){
 };
 
 exports.add = function(req, res, next){
-  if (!req.body || !req.body.name) 
-    return next(new Error('No data provided.'));
-  req.db.tasks.save({
+  var TaskModel = req.db.model;
+  var task = new TaskModel({
     name: req.body.name,
     completed: false
-  }, function(error, task){
+  });
+  if (!req.body || !req.body.name) 
+    return next(new Error('No data provided.'));
+
+  task.save(function(error, task){
     if (error) return next(error);
     if (!task) return next(new Error('Failed to save.'));
     console.info('Added %s with id=%s', task.name, task._id);
@@ -25,7 +28,7 @@ exports.add = function(req, res, next){
 };
 
 exports.completed = function(req, res, next) {
-  req.db.tasks.find({completed: true}).toArray(function(error, tasks) {
+  req.db.model.find({completed: true}).toArray(function(error, tasks) {
     res.render('tasks_completed', {
       title: 'Completed',
       tasks: tasks || []
@@ -49,18 +52,19 @@ exports.markAllCompleted = function(req, res, next) {
 
 exports.markCompleted = function(req, res, next) {
   if (!req.body.completed) return next(new Error('Param is missing'));
-  req.task.completed = true;
-  req.task.save();
-  res.redirect('/tasks');
+  req.db.model.findOne({_id: req.task._id}, function(error, task){
+    if (error) return next(error);
+    task.completed = true;
+    task.save();
+    res.redirect('/tasks');
+  });
 };
 
 exports.del = function(req, res, next) {
-  console.log("where am I");
-  req.db.tasks.removeById(req.task._id, function(error, count) {
+  req.db.model.findOneAndRemove({_id: req.task._id}, 
+                                function(error, task) {
+    console.log(task);
     if (error) return next(error);
-    if (count !==1) return next(new Error('Something went wrong.'));
-    console.info('Deleted task %s with id=%s completed.', 
-                 req.task.name, req.task._id);
     res.send(200);
   });
 };

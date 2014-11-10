@@ -99,6 +99,10 @@ app.param('task_id', function(req, res, next, taskId) {
   });
 });
 
+// less to css transformer
+app.use(require('less-middleware')(__dirname + '/public'));
+app.use(express.static(path.join(__dirname, '/public')));
+
 if (development){
   app.use(webpackMiddleware(webpack({
       // webpack options
@@ -109,7 +113,7 @@ if (development){
       tasks: path.join(__dirname, 'scripts/tasks.jsx')
     },
       output: {
-          path: path.join(__dirname, '/'),
+          path: '/',
           filename: '[name].bundle.js',
           // no real path is required, just pass "/"
           // but it will work with other paths too.
@@ -123,9 +127,13 @@ if (development){
         ]
       }
   }
-  )));
+  ), 
+  {
+    stats: {
+      colors: true
+    }
+  }));
 }
-
 
 // Configure Stormpath.
 app.use(stormpath.init(app, {
@@ -140,9 +148,6 @@ app.use(stormpath.init(app, {
   redirectUrl: '/dashboard',
 }));
 
-// less to css transformer
-app.use(require('less-middleware')(__dirname + '/public'));
-app.use(express.static(path.join(__dirname, '/public')));
 
 // Generate a simple home page.
 app.get('/', function(req, res) {

@@ -6,8 +6,4 @@ React = require('react');
 Griddle = require('griddle-react');
 var mountNode = document.getElementById("react-main-mount");
 
-React.render(
-  <Griddle results={[]} tableClassName="table" showFilter={true} 
-    showSettings={true} columns={["name", "city", "state", "country"]}/>,
-    mountNode
-);
+console.log("I'm in development");

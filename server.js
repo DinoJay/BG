@@ -9,6 +9,8 @@ var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var nodejsx     = require('node-jsx').install();
 
+var development = process.env.MODE !== 'production';
+
 // client code bundling
 var webpackMiddleware = require('webpack-dev-middleware');
 var webpack = require('webpack');
@@ -97,29 +99,32 @@ app.param('task_id', function(req, res, next, taskId) {
   });
 });
 
-app.use(webpackMiddleware(webpack({
-    // webpack options
-    // webpackMiddleware takes a Compiler object as first parameter
-    // which is returned by webpack(...) without callback.
-  entry: {
-    dashboard: path.join(__dirname, 'scripts/dashboard.jsx'),
-    tasks: path.join(__dirname, 'scripts/tasks.jsx')
-  },
-    output: {
-        path: path.join(__dirname, 'scripts/'),
-        filename: '[name].bundle.js',
-        // no real path is required, just pass "/"
-        // but it will work with other paths too.
+if (development){
+  app.use(webpackMiddleware(webpack({
+      // webpack options
+      // webpackMiddleware takes a Compiler object as first parameter
+      // which is returned by webpack(...) without callback.
+    entry: {
+      dashboard: path.join(__dirname, 'scripts/dashboard.jsx'),
+      tasks: path.join(__dirname, 'scripts/tasks.jsx')
     },
-    resolve: {
-      extensions: ['', '.js', '.jsx']
-    },
-    module: {
-      loaders: [
-            { test: /\.jsx$/, loader: "jsx" }
-      ]
-    }
-})));
+      output: {
+          path: path.join(__dirname, '/'),
+          filename: '[name].bundle.js',
+          // no real path is required, just pass "/"
+          // but it will work with other paths too.
+      },
+      resolve: {
+        extensions: ['', '.js', '.jsx']
+      },
+      module: {
+        loaders: [
+              { test: /\.jsx$/, loader: "jsx" }
+        ]
+      }
+  }
+  )));
+}
 
 
 // Configure Stormpath.

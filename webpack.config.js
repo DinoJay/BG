@@ -4,7 +4,8 @@ module.exports = {
       // which is returned by webpack(...) without callback.
     entry: {
       dashboard: __dirname + '/scripts/dashboard.jsx',
-      tasks: __dirname + '/scripts/tasks.jsx'
+      tasks: __dirname + '/scripts/tasks.jsx',
+      route: __dirname + '/scripts/route.jsx'
     },
       output: {
           path: __dirname + '/public',

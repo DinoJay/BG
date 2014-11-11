@@ -110,7 +110,8 @@ if (development){
       // which is returned by webpack(...) without callback.
     entry: {
       dashboard: path.join(__dirname, 'scripts/dashboard.jsx'),
-      tasks: path.join(__dirname, 'scripts/tasks.jsx')
+      tasks: path.join(__dirname, 'scripts/tasks.jsx'),
+      route: path.join(__dirname, 'scripts/route.jsx')
     },
       output: {
           path: '/',
@@ -157,6 +158,10 @@ app.get('/', function(req, res) {
 // Generate a simple dashboard page.
 app.get('/dashboard', stormpath.loginRequired, function(req, res) {
   res.render('dashboard', {});
+  //res.send('Hi: ' + req.user.email + '. Logout <a href="/logout">here</a>');
+});
+app.get('/route', stormpath.loginRequired, function(req, res) {
+  res.render('route', {});
   //res.send('Hi: ' + req.user.email + '. Logout <a href="/logout">here</a>');
 });
 

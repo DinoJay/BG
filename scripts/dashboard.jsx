@@ -7,3 +7,5 @@ Griddle = require('griddle-react');
 var mountNode = document.getElementById("react-main-mount");
 
 console.log("I'm in development");
+
+React.render(<Griddle results={[]} tableClassName="table"/>, mountNode);

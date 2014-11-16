@@ -42,9 +42,16 @@ var tasksSchema = mongoose.Schema({
   name: String,
   completed: Boolean,
 });
+var eventSchema = mongoose.Schema({
+  user: String,
+  route: Boolean,
+  date: String,
+  descr: String
+});
 
 // Store song documents in a collection called "songs"
 var taskModel = mongoose.model('tasks', tasksSchema);
+var eventModel = mongoose.model('events', eventSchema);
 
 // Initialize our Express app.
 var app = express();
@@ -62,7 +69,10 @@ app.locals.appname = 'Biking Guider';
 app.use(logger('dev'));
 
 app.use(bodyParser.urlencoded({
-  extended: true
+  extended: true,
+}));
+app.use(bodyParser({
+  limit: '5mb',
 }));
 app.use(bodyParser.json());
 
@@ -84,7 +94,7 @@ app.use(session({
 app.use(function(req, res, next) {
   req.db = {};
   req.db.tasks = db.collection('tasks');
-  req.db.model = taskModel;
+  req.db.model = eventModel;
   next();
 });
 
@@ -163,6 +173,28 @@ app.get('/dashboard', stormpath.loginRequired, function(req, res) {
 app.get('/route', stormpath.loginRequired, function(req, res) {
   res.render('route', {});
   //res.send('Hi: ' + req.user.email + '. Logout <a href="/logout">here</a>');
+});
+
+app.put('/route/', function(req, res, next){
+  res.send('Magic over here');
+  console.log(req.body);
+
+  //var Event = req.db.model;
+  var event = new eventModel({
+    user: "jan",
+    route: req.body,
+    date: "",
+    descr: ""
+  });
+  if (!req.body) 
+    return next(new Error('No data provided.'));
+
+  event.save(function(error, event){
+    if (error) return next(error);
+    if (!event) return next(new Error('Failed to save.'));
+    console.info('Added %s with id=%s', event, event._id);
+    //res.redirect('/tasks');
+  });
 });
 
 app.get('/tasks', tasks.list);

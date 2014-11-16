@@ -44,6 +44,7 @@
     "passport": "^0.2.1",
     "passport-stormpath": "^0.2.3",
     "react": "0.12.0",
+    "react-bootstrap": "^0.12.0",
     "react-map": "git+https://github.com/matnel/react-maps",
     "stormpath": "^0.6.0",
     "superagent": "^0.20.0"

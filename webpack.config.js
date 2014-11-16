@@ -1,7 +1,4 @@
 module.exports = {
-      // webpack options
-      // webpackMiddleware takes a Compiler object as first parameter
-      // which is returned by webpack(...) without callback.
     entry: {
       dashboard: __dirname + '/scripts/dashboard.jsx',
       tasks: __dirname + '/scripts/tasks.jsx',

@@ -1,15 +1,7 @@
 /**
  * @jsx React.DOM
  */
-/*globals google*/
-
-var __in_node = (typeof exports !== 'undefined' && this.exports !== exports);
-
-if( __in_node ) {
-  var React = require('react');
-}
-
-var ds;
+var React = require('react');
 
 var GMap = React.createClass({
 
@@ -36,112 +28,69 @@ var GMap = React.createClass({
       dest: ""
     };
   },
-  mapUpdate : function(el, origin, dest) {
-      var mapOptions = {
-        zoom: this.props.zoom,
-        center: new google.maps.LatLng(this.props.latitude, 
-                                       this.props.longitude),
-        mapTypeId: google.maps.MapTypeId.ROADMAP
-      };
-      var map = new google.maps.Map(el, mapOptions);
-      this.routeUpdate(map, origin, dest);
+
+  mapUpdate : function() {
+    this.routeUpdate();
   },
 
   componentDidMount : function() {
-    window.mapLoaded = (function() {
-
       var mapOptions = {
         zoom: this.props.zoom,
         center: new google.maps.LatLng(this.props.latitude, 
                                        this.props.longitude),
         mapTypeId: google.maps.MapTypeId.ROADMAP
       };
-      ds = new google.maps.DirectionsService();
-      this.mapUpdate(this.getDOMNode(), this.props.origin,
-                    this.props.dest);
-
-    }).bind(this);
-
-    var s = document.createElement('script');
-    s.src = 'https://maps.googleapis.com/maps/api/js?key='+ 
-             this.props.gmaps_api_key + '&sensor=' + 
-             this.props.gmaps_sensor + '&callback=mapLoaded';
-    document.head.appendChild( s );
-
-  },
-
-  // update geo-encoded markers
-  updateMarkers : function(points) {
-
-    var markers = this.state.markers;
-    var map = this.state.map;
-
-    // remove everything
-    markers.forEach( function(marker) {
-      marker.setMap(null);
-    } );
-
-    this.state.markers = [];
-
-    // add new markers
-    points.forEach( (function( point ) {
-
-      var location = new google.maps.LatLng(point.latitude, 
-                                            point.longitude);
-
-      var marker = new google.maps.Marker({
-        position: location,
-        map: map,
-        title: point.label
+      this.setState({
+        DirService: new google.maps.DirectionsService(),
+        Map: new google.maps.Map(this.getDOMNode(), mapOptions),
+        DirDisplay: new google.maps.DirectionsRenderer({draggable:true})
       });
-
-      markers.push( marker );
-
-    }) );
-
-    this.setState( { markers : markers });
+      google.maps.event.addListener(this.state.DirDisplay, 
+                                    'directions_changed', function() {
+      console.log(this.state.DirDisplay.getDirections());
+      }.bind(this));
+        console.log(google.maps.places);
+        this.mapUpdate();
   },
-
-  routeUpdate: function(map, origin, dest) {
-    console.log("dest "+dest);
-    console.log("origin "+origin);
-
-    var request = {
-      origin: origin,
-      destination: dest,
-      travelMode: google.maps.TravelMode.DRIVING
-    };
-
-    ds.route(request, function(response, status) {
-      if (status == google.maps.DirectionsStatus.OK) {
-        var directionsDisplay = new google.maps.DirectionsRenderer();
-        directionsDisplay.setDirections(response);
-        directionsDisplay.setMap(map);
-      }
-    }.bind(this));
-  },
-
-  render : function() {
-
-    var style = {
-      width: this.props.width,
-      height: this.props.height
-    };
-
-    return (
-      <div style={style}></div>
-    );
-  },
-
 
   // update markers if needed
-  componentWillReceiveProps : function(nextProps) {
-      this.mapUpdate(this.getDOMNode(), nextProps.origin, nextProps.dest);
-  }
+  componentDidUpdate: function() {
+    //this.mapUpdate(this.getDOMNode(), nextProps.origin, 
+    //               nextProps.dest);
+    this.mapUpdate();
+  },
 
-});
+  routeUpdate: function() {
+    var request = {
+      origin: this.props.origin,
+      destination: this.props.dest,
+      travelMode: google.maps.TravelMode.BICYCLING
+    };
 
-if( __in_node ) {
-  module.exports = GMap;
-}
+    this.state.DirService.route(request, function(response, status) {
+      if (status == google.maps.DirectionsStatus.OK) {
+        console.log(response);
+        this.state.DirDisplay.setDirections(response);
+        this.state.DirDisplay.setMap(this.state.Map);
+        this.state.DirDisplay.setPanel(document
+                                       .getElementById('dir-panel'));
+      }
+    }.bind(this));
+    },
+    render : function() {
+
+      var style = {
+        width: this.props.width,
+        height: this.props.height
+      };
+
+      return (
+        <div className="embed-responsive 
+          embed-responsive-16by9" >
+        </div>
+      );
+    },
+  });
+
+module.exports = GMap;
 

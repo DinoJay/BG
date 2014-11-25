@@ -18,17 +18,7 @@ var OtherComponent = React.createClass({
     };
   },
 
-  componentDidMount: function() {
-    //alert(this.props);
-    this.setState({
-      dirDisplay : new google.maps.DirectionsRenderer
-                                    ({draggable : true})
-    });
-  },
-
   handleClick: function(){
-    //console.log(this.props);
-    //console.log(this.state.dirDisplay);
     this.props.callback(this.props.data);
   },
 
@@ -38,19 +28,21 @@ var OtherComponent = React.createClass({
         <div className="col-md-4" onClick={this.handleClick}>
           <div className="panel panel-default custom-component">
             <div className="row">
-              <div className="col-md-6">
+              <div className="col-md-12">
                 <h4>{this.props.data.name}</h4>
               </div>
-              <div className="col-md-6">
+              <div className="col-md-6 col-xs-4">
                 <small>
                   Begin: {this.props.data.start_date} <br></br>
                   End: {this.props.data.end_date}
                 </small>
               </div>
-            </div>
-            <div>{this.props.data.city}</div>
-            <div>
-              <small>{this.props.data.descr}</small>
+              <div className="col-md-6 col-xs-4">
+                <small>
+                  Origin: {this.props.data.origin} <br></br>
+                  Dest: {this.props.data.dest}
+                </small>
+              </div>
             </div>
           </div>
         </div>
@@ -62,8 +54,7 @@ var OtherComponent = React.createClass({
 var EventPage = React.createClass({
   getDefaultProps: function() {
     return { 
-      data: {},
-      route: null
+      singleTourData: null
     };
   },
 
@@ -74,7 +65,7 @@ var EventPage = React.createClass({
   },
 
   componentDidMount: function() {
-    superagent.get('/listEvents', function(res){
+    superagent.get('/tours/list', function(res){
       console.log(res.body);
       this.setState({
         data: res.body
@@ -106,8 +97,8 @@ var EventPage = React.createClass({
     });
   },
 
-  onCellClick: function(data) {
-    this.setState({route : data.route});
+  onCellClick: function(singleTourData) {
+    this.setState({singleTourData : singleTourData});
   },
 
   render: function(){
@@ -119,7 +110,7 @@ var EventPage = React.createClass({
             header={this.props.header}
             body={this.props.body}
             footer={this.props.footer}
-            route={this.state.route}>
+            data={this.state.singleTourData}>
         </Modal>
         <Griddle
           getExternalResults={this.dataMethod}

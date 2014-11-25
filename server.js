@@ -27,7 +27,7 @@ var uriUtil = require('mongodb-uri');
 
 var options = { server: { socketOptions: { keepAlive: 1, 
   connectTimeoutMS: 30000 } }, 
-  replset: { socketOptions: { keepAlive: 1, connectTimeoutMS : 30000 } } }; 
+  replset: { socketOptions: { keepAlive: 1, connectTimeoutMS : 30000 }}};
 var mongodbUri = 'mongodb://heroku_app31182773:ccg276p6c72givh103mjv6j'+
                  'sr9@ds051170.mongolab.com:51170/heroku_app31182773';
 var mongooseUri = uriUtil.formatMongoose(mongodbUri);
@@ -43,10 +43,17 @@ var tasksSchema = mongoose.Schema({
   completed: Boolean,
 });
 var eventSchema = mongoose.Schema({
-  user: String,
-  route: Boolean,
-  date: String,
-  descr: String
+    name       : String,
+    origin     : String,
+    dest       : String,
+    start_date : String,
+    end_date   : String,
+    pers       : String,
+    difficulty : Number,
+    descr      : String,
+    route      : Object,
+    user       : String,
+    reg_users  : Array
 });
 
 // Store song documents in a collection called "songs"
@@ -76,8 +83,8 @@ app.use(bodyParser({
 }));
 app.use(bodyParser.json());
 
-//Lets you use HTTP verbs such as PUT or DELETE in places where the 
-//client doesn't support it. 
+//Lets you use HTTP verbs such as PUT or DELETE in places where the
+//client doesn't support it.
 app.use(methodOverride());
 
 app.use(cookieParser());
@@ -120,7 +127,7 @@ if (development){
       // which is returned by webpack(...) without callback.
     entry: {
       dashboard: path.join(__dirname, 'scripts/dashboard.jsx'),
-      tasks: path.join(__dirname, 'scripts/tasks.jsx'),
+      tours: path.join(__dirname, 'scripts/tours.jsx'),
       route: path.join(__dirname, 'scripts/route.jsx')
     },
       output: {
@@ -138,7 +145,7 @@ if (development){
         ]
       }
   }
-  ), 
+  ),
   {
     stats: {
       colors: true
@@ -156,7 +163,8 @@ app.use(stormpath.init(app, {
   registrationView: __dirname + '/pages/register.jade',
   loginView: __dirname + '/pages/login.jade',
   // redirects
-  redirectUrl: '/dashboard',
+  // TODO: change this later
+  redirectUrl: '/tours',
 }));
 
 
@@ -170,21 +178,53 @@ app.get('/dashboard', stormpath.loginRequired, function(req, res) {
   res.render('dashboard', {});
   //res.send('Hi: ' + req.user.email + '. Logout <a href="/logout">here</a>');
 });
+
+app.get('/tours', stormpath.loginRequired, function(req, res) {
+  res.render('tours', {});
+  //res.send('Hi: ' + req.user.email + '. Logout <a href="/logout">here</a>');
+});
+app.get('/tours/list', function(req, res, next){
+  req.db.model.find({
+    user: req.user.username
+  }, function(error, events){
+    console.log("found events:");
+    console.log(events);
+    res.send(events);
+  });
+});
+app.put('/tours/register', function(req, res, next){
+  if (!req.body) 
+    return next(new Error('No data provided.'));
+  console.log(req.body);
+  req.db.model.findOneAndUpdate({
+    user: req.user.username
+  }, {$push: {reg_users: req.user.username} }, function (err, doc){
+  console.log(err);
+  console.log(doc);
+  console.log("SUCCESS");
+  });
+});
+
 app.get('/route', stormpath.loginRequired, function(req, res) {
   res.render('route', {});
   //res.send('Hi: ' + req.user.email + '. Logout <a href="/logout">here</a>');
 });
-
-app.put('/route/', function(req, res, next){
+app.put('/route', stormpath.loginRequired, function(req, res, next){
   res.send('Magic over here');
   console.log(req.body);
 
   //var Event = req.db.model;
   var event = new eventModel({
-    user: "jan",
-    route: req.body,
-    date: "",
-    descr: ""
+    name       : req.body.name,
+    origin     : req.body.origin,
+    dest       : req.body.dest,
+    start_date : req.body.end_date,
+    end_date   : req.body.start_date,
+    pers       : req.body.pers,
+    difficulty : req.body.difficulty,
+    descr      : req.body.descr,
+    route      : req.body.route,
+    user       : req.user.username,
   });
   if (!req.body) 
     return next(new Error('No data provided.'));

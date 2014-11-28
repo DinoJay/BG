@@ -4,15 +4,30 @@
  */
 var React          = require('react');
 var GMap           = require('./Map');
-var CommentBox     = require('./CommentBox');
 
 var superagent     = require('superagent');
 
+var Popover = require('react-bootstrap/Popover');
+var OverlayTrigger = require('react-bootstrap/OverlayTrigger');
+
+var PopoverTrigger = React.createClass({
+  handleClick: function(e) {
+    $('#reg').popover('show');
+  },
+  render: function() {
+      return (
+        <div onClick={this.handleClick}>
+          {this.props.children}
+        </div>
+      );
+  },
+});
 exports.ModalTrigger = React.createClass({
   handleClick: function(e) {
     $('#modal').modal();
   },
   render: function() {
+      var Trigger = this.props.trigger;
       return (
         <div onClick={this.handleClick}>
           {this.props.children}
@@ -31,20 +46,14 @@ exports.Modal = React.createClass({
   },
   getInitialState: function() {
     return {
-      error: null,
-      open: false
+      registered: false
     };
   },
   componentDidMount: function() {
+      // Initialize the modal, once we have the DOM node
+      // TODO: Pass these in via props
     $(this.getDOMNode()).modal({background: true, keyboard: true, 
                                show: false});
-    $("#modal").on('hidden.bs.modal', function () {
-      this.setState({error: null, open: false});
-    }.bind(this));
-
-    $("#modal").on('shown.bs.modal', function () {
-      this.setState({open: true});
-    }.bind(this));
   },
   componentWillUnmount: function() {
     $(this.getDOMNode()).off('hidden');
@@ -58,11 +67,12 @@ exports.Modal = React.createClass({
     .send(this.props.data)
     .end(function(error, res){
       if (!error) {
-        if (res === "success"){
-          this.setState({error: false});
-        } 
+        if (res === "success") this.setState({registered: true});
         else {
           this.setState({error: true});
+          $('#reg').popover('show');
+          $(".popover").addClass("pop-success");
+          $(".popover-title").addClass("pop-success-bold");
         }
       }
     }.bind(this));
@@ -70,51 +80,43 @@ exports.Modal = React.createClass({
   onClose: function() {
     $('#reg').popover('destroy');
     console.log("CLOSE");
-    this.setState({error : null});
+    this.setState({registered : false,
+                   error      : false});
+  },
+  shouldComponentUpdate: function(nextProps, nextState) {
+    //if (this.props.data.route !== nextProps.data.route) return true;
+    //else return false;
+    return true;
   },
   componentDidUpdate: function() {
-    // show popover after render
-    var that = this;
-    if (this.state.open) {
-      if (this.state.error !== null) {
-        if (this.state.error) {
-          $('#reg').popover('show');
-          $(".popover").addClass("pop-alert");
-          $(".popover-title").addClass("pop-alert-bold");
-        }
-        else {
-          $('#reg').popover('show');
-          $(".popover").addClass("pop-success");
-          $(".popover-title").addClass("pop-success-bold");
-        }
-      }
-    } else {
-      $('#reg').popover('destroy');
+    /*
+    if (this.state.error) {
+      $('#reg').popover();
     }
+    */
   },
   render: function() {
-      $('.modal-backdrop').css({
-              width:'auto', //probably not needed
-              height:'auto', //probably not needed 
-       });
     var reg_btn_class = "btn btn-default";
     var notifier = null;
+    var MyPopover;
     var titlePopover;
     var textPopover;
-
-    if (!this.state.error) {
+    if (this.state.registered){
       titlePopover = "Success";
       textPopover = "You are now registered to this event. "+
-        "For more info see your profile page!";
-    } else {
+                        "For more info see your profile page!";
+    }
+    if (this.state.error) {
       titlePopover = "Failure";
       textPopover = "You are already registered to this event. "+
-        "You cannot do it again!";
+                        "You cannot do it again!";
+      $('#reg').popover('show');
+      $(".popover").addClass("pop-alert");
+      $(".popover-title").addClass("pop-alert pop-alert-bold");
     }
-
     return (
       <div id="modal" onClick={this.handleClick} 
-        className="modal" role="dialog" aria-hidden="true">
+        className="modal fade" role="dialog" aria-hidden="true">
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">
@@ -132,25 +134,21 @@ exports.Modal = React.createClass({
                 </div>
               </div>
             </div>
-            <CommentBox tourId={this.props.data._id} 
-              url="/tours/comments" pollInterval={2000} 
-              active={this.state.open}
-            />
             <div className="modal-footer">
               <button type="button" className="btn btn-primary" 
                 data-dismiss="modal" onClick={this.onClose}>
                 Close
               </button>
-              <button id="reg"
-                data-toggle="popover" 
-                title={titlePopover}
-                data-content={textPopover}
-                data-trigger="focus"
-                data-placement="top" type="button"
-                className={reg_btn_class}
-                onClick={this.register}>
-                Register
-              </button>
+                <button id="reg"
+                  data-toggle="popover" 
+                  title={titlePopover}
+                  data-content={textPopover}
+                  data-trigger="focus"
+                  data-placement="top" type="button"
+                  className={reg_btn_class}
+                  onClick={this.register}>
+                  Register
+                </button>
             </div>
           </div>
         </div>

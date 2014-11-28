@@ -25,9 +25,20 @@ var mongoskin = require('mongoskin');
 var mongoose = require('mongoose');
 var uriUtil = require('mongodb-uri');
 
-var options = { server: { socketOptions: { keepAlive: 1, 
-  connectTimeoutMS: 30000 } }, 
-  replset: { socketOptions: { keepAlive: 1, connectTimeoutMS : 30000 }}};
+var options = { 
+  server: { 
+    socketOptions: { 
+      keepAlive: 1, 
+      connectTimeoutMS: 30000 
+    } 
+  }, 
+  replset: { 
+    socketOptions: { 
+      keepAlive: 1, 
+      connectTimeoutMS : 30000 
+    }
+  }
+};
 var mongodbUri = 'mongodb://heroku_app31182773:ccg276p6c72givh103mjv6j'+
                  'sr9@ds051170.mongolab.com:51170/heroku_app31182773';
 var mongooseUri = uriUtil.formatMongoose(mongodbUri);
@@ -38,11 +49,13 @@ var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 
 // Create song schema
-var tasksSchema = mongoose.Schema({
-  name: String,
-  completed: Boolean,
+var commentSchema = mongoose.Schema({
+  user: String,
+  datetime: Date,
+  text: String,
+  tourId: Object
 });
-var eventSchema = mongoose.Schema({
+var tourSchema = mongoose.Schema({
     name       : String,
     origin     : String,
     dest       : String,
@@ -57,8 +70,8 @@ var eventSchema = mongoose.Schema({
 });
 
 // Store song documents in a collection called "songs"
-var taskModel = mongoose.model('tasks', tasksSchema);
-var eventModel = mongoose.model('events', eventSchema);
+var commentModel = mongoose.model('comments', commentSchema);
+var tourModel = mongoose.model('tours', tourSchema);
 
 // Initialize our Express app.
 var app = express();
@@ -95,26 +108,6 @@ app.use(session({
   saveUninitialized: true,
   resave: true
 }));
-// TODO: add csrf here
-
-// export db to all middlewares
-app.use(function(req, res, next) {
-  req.db = {};
-  req.db.tasks = db.collection('tasks');
-  req.db.model = eventModel;
-  next();
-});
-
-// When there’s a request that matches route/RegExp with :task_id in it, 
-// this block is executed:
-app.param('task_id', function(req, res, next, taskId) {
-  req.db.model.findById(taskId, function(error, task){
-    if (error) return next(error);
-    if (!task) return next(new Error('Task is not found.'));
-      req.task = task;
-    return next();
-  });
-});
 
 // less to css transformer
 app.use(require('less-middleware')(__dirname + '/public'));
@@ -130,20 +123,20 @@ if (development){
       tours: path.join(__dirname, 'scripts/tours.jsx'),
       route: path.join(__dirname, 'scripts/route.jsx')
     },
-      output: {
-          path: '/',
-          filename: '[name].bundle.js',
-          // no real path is required, just pass "/"
-          // but it will work with other paths too.
-      },
-      resolve: {
-        extensions: ['', '.js', '.jsx']
-      },
-      module: {
-        loaders: [
-              { test: /\.jsx$/, loader: "jsx" }
-        ]
-      }
+    output: {
+        path: '/',
+        filename: '[name].bundle.js',
+        // no real path is required, just pass "/"
+        // but it will work with other paths too.
+    },
+    resolve: {
+      extensions: ['', '.js', '.jsx']
+    },
+    module: {
+      loaders: [
+            { test: /\.jsx$/, loader: "jsx" }
+      ]
+    }
   }
   ),
   {
@@ -167,6 +160,10 @@ app.use(stormpath.init(app, {
   redirectUrl: '/tours',
 }));
 
+app.param('tourId', function(req, res, next, tourId) {
+  req.tourId = tourId;
+  next();
+});
 
 // Generate a simple home page.
 app.get('/', function(req, res) {
@@ -176,45 +173,84 @@ app.get('/', function(req, res) {
 // Generate a simple dashboard page.
 app.get('/dashboard', stormpath.loginRequired, function(req, res) {
   res.render('dashboard', {});
-  //res.send('Hi: ' + req.user.email + '. Logout <a href="/logout">here</a>');
 });
 
 app.get('/tours', stormpath.loginRequired, function(req, res) {
   res.render('tours', {});
-  //res.send('Hi: ' + req.user.email + '. Logout <a href="/logout">here</a>');
 });
 app.get('/tours/list', function(req, res, next){
-  req.db.model.find({
-    user: req.user.username
-  }, function(error, events){
-    console.log("found events:");
-    console.log(events);
-    res.send(events);
+  // TODO: find not by registered user
+  tourModel.find({}, function(error, tours){
+    console.log("found tours:");
+    //console.log(tours);
+    res.send({
+      user: req.user.username,
+      tours: tours
+    });
   });
 });
 app.put('/tours/register', function(req, res, next){
   if (!req.body) 
     return next(new Error('No data provided.'));
-  console.log(req.body);
-  req.db.model.findOneAndUpdate({
-    user: req.user.username
-  }, {$push: {reg_users: req.user.username} }, function (err, doc){
-  console.log(err);
-  console.log(doc);
-  console.log("SUCCESS");
+
+    tourModel.findById(req.body._id, function (err, doc){
+    if (!err) {
+      if (doc.reg_users.indexOf(req.user.username) !== -1) {
+        doc.reg_users.push(req.user.username);
+        doc.save();
+        res.send("success");
+      } else {
+        res.send("failure");
+      }
+    } else console.log(err);
+  });
+});
+
+app.get('/tours/comments/:tourId', function(req, res, next){
+  console.log(req.tourId);
+  commentModel.find({$query: { tourId: req.tourId }, 
+                    $orderby:{datetime:1}}, function(error, comments){
+    if (error) console.log(error);
+    console.log("found comments:");
+    console.log(comments);
+    res.send({
+      comments: comments
+    });
+  });
+});
+app.put('/tours/comments/:tourId', function(req, res, next){
+  if (!req.body) return next(new Error('No data provided.'));
+  var comment = new commentModel({
+    user : req.user.username,
+    text : req.body.comment.text,
+    datetime : Date(),
+    tourId: req.tourId
+  });
+  comment.save(function(error, tour){
+    if (error) return next(error);
+    if (!tour) return next(new Error('Failed to save.'));
+    console.info('Added %s with id=%s', tour, tour._id);
+
+    commentModel.find({$query: { tourId: req.tourId }, 
+                      $orderby:{datetime:1}},
+                                         function(error, comments){
+      if (error) console.log(error);
+      console.log("comments to send:");
+      console.log(comments);
+      res.send({
+        comments: comments
+      });
+    });
   });
 });
 
 app.get('/route', stormpath.loginRequired, function(req, res) {
   res.render('route', {});
-  //res.send('Hi: ' + req.user.email + '. Logout <a href="/logout">here</a>');
 });
-app.put('/route', stormpath.loginRequired, function(req, res, next){
-  res.send('Magic over here');
-  console.log(req.body);
+app.put('/route/create',
+        stormpath.loginRequired, function(req, res, next){
 
-  //var Event = req.db.model;
-  var event = new eventModel({
+  var tour = new tourModel({
     name       : req.body.name,
     origin     : req.body.origin,
     dest       : req.body.dest,
@@ -229,11 +265,10 @@ app.put('/route', stormpath.loginRequired, function(req, res, next){
   if (!req.body) 
     return next(new Error('No data provided.'));
 
-  event.save(function(error, event){
+  tour.save(function(error, tour){
     if (error) return next(error);
-    if (!event) return next(new Error('Failed to save.'));
-    console.info('Added %s with id=%s', event, event._id);
-    //res.redirect('/tasks');
+    if (!tour) return next(new Error('Failed to save.'));
+    console.info('Added %s with id=%s', tour, tour._id);
   });
 });
 

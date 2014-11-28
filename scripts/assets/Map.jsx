@@ -91,7 +91,6 @@ var GMap  = React.createClass({
 
   // update markers if needed
   componentDidUpdate: function() {
-    console.log("UPDATE");
     if (this.props.latitude && this.props.longitude) this.markUpdate();
 
     if (this.props.origin && this.props.dest) this.routeUpdate();
@@ -101,19 +100,12 @@ var GMap  = React.createClass({
   },
 
   shouldComponentUpdate: function(newProps) {
-    console.log("new Props");
-    console.log(newProps.origin);
-    console.log(newProps.dest);
-    console.log("old Props");
-    console.log(this.props.origin);
-    console.log(this.props.dest);
     // TODO: looks terrible
     if (this.props.defaultRoute) return true;
     if (this.props.origin && this.props.dest && 
         newProps.origin && newProps.des && 
         this.props.origin === newProps.origin &&
                               this.props.dest === newProps.dest) {
-      console.log("YEAHH!");
       return false;
     } else return true;
   },
@@ -148,7 +140,6 @@ var GMap  = React.createClass({
   },
 
   markUpdate: function() {
-    console.log("Marker");
     var pos = new google.maps.LatLng(this.props.latitude, 
                                      this.props.longitude);
     this.state.marker.position = pos;
@@ -158,7 +149,6 @@ var GMap  = React.createClass({
   },
 
   handleRouteChange: function(res) {
-    console.log("handleChange");
     this.props.callback(res);
   },
 

@@ -21,7 +21,7 @@ var MapRouter = React.createClass({
       latitude          : null,
       longitude         : null,
       route        : null,
-      db_event_save_msg : "",
+      db_tour_save_msg : "",
     };
   },
   getDefaultProps: function(){
@@ -57,7 +57,7 @@ var MapRouter = React.createClass({
     console.log("route");
     console.log(this.state.route);
     if (!this.state.saved_event){
-      superagent.put('/route/')
+      superagent.put('/route/create')
       .send({
         name       : this.refs.name.getDOMNode().value,
         origin     : this.refs.origin.getDOMNode().value,
@@ -72,10 +72,10 @@ var MapRouter = React.createClass({
       .end(function(error, res){
         console.log("Save in DB");
         console.log(res);
-        this.setState({db_event_save_msg: "success"});
+        this.setState({db_tour_save_msg: "success"});
       }.bind(this));
     } else {
-      this.setState({db_event_save_msg: "fail"});
+      this.setState({db_tour_save_msg: "fail"});
     }
   },
 
@@ -84,7 +84,7 @@ var MapRouter = React.createClass({
     var origin      = this.refs.origin.getDOMNode().value ;
     var destination = this.refs.dest.getDOMNode().value ;
     console.log(origin);
-    this.setState({db_event_save_msg : "",
+    this.setState({db_tour_save_msg : "",
                   origin             : origin,
                   destination        : destination,
                   });
@@ -113,25 +113,25 @@ var MapRouter = React.createClass({
 
   render: function() {
     var notifier;
-    if (this.state.db_event_save_msg == 'success') {
+    if (this.state.db_tour_save_msg == 'success') {
       notifier = (
         <div className="form-group alert alert-success" role="alert">
           <span className="glyphicon glyphicon-exclamation-sign"
             aria-hidden="true" 
           />
           <span className="sr-only">Error:</span>
-            {this.state.db_event_save_msg}
+            {this.state.db_tour_save_msg}
         </div>
       );
     } else {
-      if (this.state.db_event_save_msg !== "") {
+      if (this.state.db_tour_save_msg !== "") {
         notifier = (
           <div className="form-group alert alert-danger" role="alert">
             <span className="glyphicon glyphicon-exclamation-sign"
               aria-hidden="true"
             />
             <span className="sr-only">Error:</span>
-              {this.state.db_event_save_msg}
+              {this.state.db_tour_save_msg}
           </div>
         );
       } else notifier = "";

@@ -9,12 +9,13 @@ var ModalTrigger   = require('./assets/Modal.jsx').ModalTrigger;
 var Modal          = require('./assets/Modal.jsx').Modal;
 var columnMetaData = require('./assets/columnMetaData');
 var mountNode      = document.getElementById("react-main-mount");
+var CommentBox     = require('./assets/CommentBox');
 
-var OtherComponent = React.createClass({
+var Cell = React.createClass({
   getDefaultProps: function(){
     return {
-      data                      : {},
-      map_id                    : "dir-panel",
+      data   : {},
+      map_id : "dir-panel",
     };
   },
 
@@ -66,9 +67,10 @@ var EventPage = React.createClass({
 
   componentDidMount: function() {
     superagent.get('/tours/list', function(res){
-      console.log(res.body);
+      console.log(res);
       this.setState({
-        data: res.body
+        data: res.body.tours,
+        user: res.body.user
       });
     }.bind(this));
   },
@@ -110,14 +112,15 @@ var EventPage = React.createClass({
             header={this.props.header}
             body={this.props.body}
             footer={this.props.footer}
-            data={this.state.singleTourData}>
+            data={this.state.singleTourData}
+            user={this.state.user}>
         </Modal>
         <Griddle
           getExternalResults={this.dataMethod}
           columnMetadata={columnMetaData}
           customFormatClassName="row" useCustomFormat="true"
           showFilter="true" tableClassName="table"
-          customFormat={OtherComponent} showSettings="true"
+          customFormat={Cell} showSettings="true"
           noDataMessage={"Please wait. Data is loading"}
           callback={this.onCellClick}
         />
@@ -129,4 +132,6 @@ var EventPage = React.createClass({
 
 window.mapLoaded = (function() {
   React.render(<EventPage />, mountNode);
+  //React.render(<CommentBox url="/tours/comments" 
+  //            pollInterval={2000} />, mountNode);
 });

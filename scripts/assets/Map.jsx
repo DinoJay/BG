@@ -55,10 +55,26 @@ var GMap  = React.createClass({
         strokeOpacity : this.props.strokeOpacity
       }
     };
+
     var homeMarker = new google.maps.Marker({
       position : new google.maps.LatLng(this.props.latitude, 
                                         this.props.longitude),
       title    : 'my location!'
+    });
+    var markerA = new google.maps.Marker({
+      icon         : iconA,
+      position     : null,
+      labelContent : "A",
+    });
+    var markerB = new google.maps.Marker({
+      icon     : iconB,
+      position : null
+    });
+    var polyline = new google.maps.Polyline({
+      path          : [],
+      strokeWeight  : 3,
+      strokeColor   : this.props.strokeColor,
+      strokeOpacity : this.props.strokeOpacity
     });
 
     this.setState({
@@ -66,37 +82,31 @@ var GMap  = React.createClass({
       map             : new google.maps.Map(this.getDOMNode(), mapOpts),
       marker          : homeMarker,
       dirDisplay      : new google.maps.DirectionsRenderer(displayOpts),
-      markerA         : new google.maps.Marker({
-        icon            : iconA,
-        position        : null,
-        labelContent    : "A",
-      }),
-      markerB         : new google.maps.Marker({
-        icon          : iconB,
-        position      : null
-      }),
-      polyline        : new google.maps.Polyline({
-        path          : [],
-        strokeWeight  : 3,
-        strokeColor   : this.props.strokeColor,
-        strokeOpacity : this.props.strokeOpacity
-      })
+      markerA         : markerA,
+      markerB         : markerB,
+      polyline        : polyline
     });
+
+    var bikeLayer = new google.maps.BicyclingLayer();
+    bikeLayer.setMap(this.state.map);
+
     google.maps.event.addListener(this.state.dirDisplay, 
                                   'directions_changed', function() {
       console.log("directions changed");
       this.handleRouteChange(this.state.dirDisplay.getDirections());
     }.bind(this));
+    google.maps.event.trigger(this.state.map, 'resize');
   },
 
   // update markers if needed
   componentDidUpdate: function() {
+    console.log("DEFAULT ROUTE", this.props.defaultRoute);
     if (this.props.latitude && this.props.longitude) this.markUpdate();
 
-    if (this.props.origin && this.props.dest) this.routeUpdate();
-    else {
-      if (this.props.defaultRoute) this.defaultRouteUpdate();
+    if (this.props.origin && this.props.dest){
+      this.routeUpdate();
     }
+    else if (this.props.defaultRoute) this.defaultRouteUpdate();
   },
 
   shouldComponentUpdate: function(newProps) {
@@ -104,13 +114,14 @@ var GMap  = React.createClass({
     if (this.props.defaultRoute) return true;
     if (this.props.origin && this.props.dest && 
         newProps.origin && newProps.des && 
-        this.props.origin === newProps.origin &&
-                              this.props.dest === newProps.dest) {
+          this.props.origin === newProps.origin &&
+                                this.props.dest === newProps.dest) {
       return false;
     } else return true;
   },
 
   defaultRouteUpdate: function() {
+    console.log("DEFAULTROUTEUPDATE");
     this.state.polyline.setMap(null);
     this.state.markerA.setMap(null);
     this.state.markerB.setMap(null);
@@ -123,6 +134,7 @@ var GMap  = React.createClass({
     });
     // modal bug fix
     google.maps.event.trigger(this.state.map, 'resize');
+
     this.state.polyline.setPath(path);
     this.state.polyline.setMap(this.state.map);
     this.state.map.fitBounds(bounds);
@@ -149,10 +161,16 @@ var GMap  = React.createClass({
   },
 
   handleRouteChange: function(res) {
-    this.props.callback(res);
+    console.log("Handle route change!!!");
+    if (this.props.callback) this.props.callback(res);
   },
 
   routeUpdate: function() {
+    if (this.state.markerA && this.state.markerB && this.state.polyline){
+      this.state.polyline.setMap(null);
+      this.state.markerA.setMap(null);
+      this.state.markerB.setMap(null);
+    }
     var pos;
     if (this.props.origin.match(/\((-?[0-9\.]+), (-?[0-9\.]+)\)/)){
       var coords  = this.props.origin.replace(/[\(\)]/g,'').split(', ');
@@ -173,14 +191,15 @@ var GMap  = React.createClass({
         this.state.dirDisplay.setPanel(document
                                        .getElementById('dir-panel'));
       this.state.marker.setMap(null);
-      document.getElementById("dir-panel").className = "dir-panel";
+      if (document.getElementById("dir-panel"))
+        document.getElementById("dir-panel").className = "dir-panel";
       }
     }.bind(this));
   },
 
   render : function() {
     return (
-      <div className="embed-responsive embed-responsive-16by9" >
+      <div className="map-canvas" >
       </div>
     );
   },

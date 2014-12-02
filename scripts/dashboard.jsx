@@ -2,140 +2,94 @@
  * @jsx React.DOM
  * @flow
  */
-var React          = require('react');
-var Griddle        = require('griddle-react');
-var superagent     = require('superagent');
-var ModalTrigger   = require('./assets/Modal.jsx').ModalTrigger;
-var Modal          = require('./assets/Modal.jsx').Modal;
-var columnMetaData = require('./assets/columnMetaData');
-var mountNode      = document.getElementById("react-main-mount");
+var React           = require('react');
+var Griddle         = require('griddle-react');
+var superagent      = require('superagent');
 
-var OtherComponent = React.createClass({
+var dataMethodMixin = require('./assets/dataMethodMixin');
+var Cell            = require('./assets/Cell');
+var columnMetaData  = require('./assets/columnMetaData');
+var loadScript      = require('./assets/loadScript');
+
+var Modal           = require('./ModalDash');
+var mountNode       = document.getElementById("react-main-mount");
+
+// helper function
+Array.prototype.indexOfObj = function arrayObjectIndexOf(property,
+                                                         value) {
+    for (var i = 0, len = this.length; i < len; i++) {
+        if (this[i][property] === value) return i;
+    }
+    return -1;
+};
+
+var MyEvents = React.createClass({
+  mixins: [dataMethodMixin],
+
   getDefaultProps: function(){
     return {
-      data                      : {},
-      map_id                    : "dir-panel",
-    };
-  },
-
-  componentDidMount: function() {
-    //alert(this.props);
-    this.setState({
-      dirDisplay : new google.maps.DirectionsRenderer
-                                    ({draggable : true})
-    });
-  },
-
-  handleClick: function(){
-    //console.log(this.props);
-    //console.log(this.state.dirDisplay);
-    this.props.callback(this.props.data);
-  },
-
-  render: function(){
-    return(
-      <ModalTrigger>
-        <div className="col-md-4" onClick={this.handleClick}>
-          <div className="panel panel-default custom-component">
-            <div className="row">
-              <div className="col-md-6">
-                <h4>{this.props.data.name}</h4>
-              </div>
-              <div className="col-md-6">
-                <small>
-                  Begin: {this.props.data.start_date} <br></br>
-                  End: {this.props.data.end_date}
-                </small>
-              </div>
-            </div>
-            <div>{this.props.data.city}</div>
-            <div>
-              <small>{this.props.data.descr}</small>
-            </div>
-          </div>
-        </div>
-      </ModalTrigger>
-    );
-  }
-});
-
-var EventPage = React.createClass({
-  getDefaultProps: function() {
-    return { 
-      data: {},
-      route: null
+      map_id : "dir-panel",
     };
   },
 
   getInitialState: function() {
     return {
-      data: []
+      data       : [],
+      tourRecord : []
     };
   },
 
   componentDidMount: function() {
-    superagent.get('/listEvents', function(res){
-      console.log(res.body);
+    superagent.get('/tours/list', function(res){
+      console.log("BODY TOURS", res.body.tours);
       this.setState({
-        data: res.body
+        data: res.body.tours,
+        user: res.body.user
       });
     }.bind(this));
   },
 
-  // TODO: fix filtering
-  dataMethod: function(filterString, sortColumn, sortAscending,
-                                     page, pageSize, callback) {
-    var initialIndex = page * pageSize;
-    var endIndex = initialIndex + pageSize;
-    var parRes;
-    if (filterString !== "") {
-      parRes = [];
-      this.state.data.forEach(function(cell){
-        if (cell.origin.indexOf(filterString) !== -1 ||
-            cell.dest.indexOf(filterString) !== -1 ||
-            cell.name.indexOf(filterString) !== -1  ) 
-          parRes.push(cell);
-      });
-      if (parRes.length === 0) parRes = this.state.data;
-    }
-    else parRes = this.state.data;
-    parRes = parRes.slice(initialIndex, endIndex);
-    callback({
-      results : parRes,
-      totalResults: this.state.data.length
-    });
+  onCellClick: function(tourRecord) {
+    this.setState({tourRecord: tourRecord});
   },
 
-  onCellClick: function(data) {
-    this.setState({route : data.route});
+  tourChangeHandler: function(updatedTour) {
+    console.log("ID", updatedTour._id);
+    var curData = this.state.data;
+    var index = curData.indexOfObj("_id", updatedTour._id);
+
+    console.log("Data", curData);
+    console.log("ID of changed TOUR", updatedTour._id);
+    console.log("Index in this data", index);
+    curData[index] = updatedTour;
+    console.log("curData", curData[index]);
+    this.setState({data: curData});
   },
 
   render: function(){
     return(
-      <div className="row">
-        <div className="header-off" />
-        <div className="col-md-12">
-        <Modal ref="payload"
-            header={this.props.header}
-            body={this.props.body}
-            footer={this.props.footer}
-            route={this.state.route}>
-        </Modal>
+      <div>
+        <Modal ref="payload" data={this.state.tourRecord}
+          user={this.state.user} 
+          dataChangeHandler={this.tourChangeHandler}
+        />
         <Griddle
-          getExternalResults={this.dataMethod}
+          getExternalResults={this.dataMethodHelper}
           columnMetadata={columnMetaData}
           customFormatClassName="row" useCustomFormat="true"
-          showFilter="true" tableClassName="table"
-          customFormat={OtherComponent} showSettings="true"
-          noDataMessage={"Please wait. Data is loading"}
+          tableClassName="table"
+          customFormat={Cell} 
+          GMap={this.onCellClick}
+          noDataMessage={"No Tours found created by you."}
           callback={this.onCellClick}
+          cellStyle={{"min-height": 170}}
         />
       </div>
-    </div>
     );
   }
 });
 
-window.mapLoaded = (function() {
-  React.render(<EventPage />, mountNode);
-});
+loadScript("mapLoaded");
+window.mapLoaded = function() {
+  React.render(<MyEvents />, mountNode);
+};

@@ -3,14 +3,16 @@
  */
 /* @flow */
 var React               = require('react');
-var mountNode           = document.getElementById("react-main-mount");
-var GMap                = require('./assets/Map');
 var superagent          = require('superagent');
 
-require('bootstrap/js/tooltip');
-require('bootstrap/dist/js/bootstrap');
+var GMap                = require('./assets/Map');
+var loadScript          = require('./assets/loadScript');
+
+var mountNode           = document.getElementById('react-main-mount');
 
 var MapRouter = React.createClass({
+
+  mixins: [require('./assets/locMixin')],
 
   Route : null,
 
@@ -24,6 +26,7 @@ var MapRouter = React.createClass({
       db_tour_save_msg : "",
     };
   },
+
   getDefaultProps: function(){
     return({
       gmaps_api_key : '',
@@ -56,6 +59,7 @@ var MapRouter = React.createClass({
     var destination = this.refs.dest.getDOMNode().value ;
     console.log("route");
     console.log(this.state.route);
+
     if (!this.state.saved_event){
       superagent.put('/route/create')
       .send({
@@ -70,19 +74,21 @@ var MapRouter = React.createClass({
         route      : this.Route.routes[0].overview_path
       })
       .end(function(error, res){
+        if (error) console.log(error);
         console.log("Save in DB");
-        console.log(res);
+        console.log("RESPONSE", res);
         this.setState({db_tour_save_msg: "success"});
       }.bind(this));
-    } else {
+    } 
+    else {
       this.setState({db_tour_save_msg: "fail"});
     }
   },
 
   handleRouteChange: function(e) {
     //e.preventDefault();
-    var origin      = this.refs.origin.getDOMNode().value ;
-    var destination = this.refs.dest.getDOMNode().value ;
+    var origin      = this.refs.origin.getDOMNode().value;
+    var destination = this.refs.dest.getDOMNode().value;
     console.log(origin);
     this.setState({db_tour_save_msg : "",
                   origin             : origin,
@@ -90,25 +96,10 @@ var MapRouter = React.createClass({
                   });
   },
 
-  handleLoc: function(e){
-    e.preventDefault();
-    navigator.geolocation.getCurrentPosition(function(position) {
-      var latitude = position.coords.latitude;
-      var longitude = position.coords.longitude;
-      var lat_long_str = '('+longitude.toString()+ 
-                         ', '+ latitude.toString() +')';
-      this.refs.origin.getDOMNode().value = lat_long_str;
-      this.setState({latitude : latitude,
-                    longitude : longitude,
-                    });
-    }.bind(this));
-  },
-
   getDirDisplay : function(route) {
     //this.setState({ route: route });
+    console.log("Saving Route", route);
     this.Route = route;
-    console.log("GETDIRECTIONS");
-    console.log(route);
   },
 
   render: function() {
@@ -165,17 +156,8 @@ var MapRouter = React.createClass({
               </div>     
               <div className="form-group">
                 <label>Dest</label>
-                <div className="input-group">
-                  <input ref="dest" type="text" 
-                    className="form-control" 
-                    onBlur={this.handleClickRoute}/>
-                  <span className="input-group-btn">
-                    <button className="btn btn-default"
-                      >
-                      <span className="glyphicon glyphicon-zoom-in"/>
-                    </button>
-                  </span>
-                </div>
+                <input ref="dest" type="text" 
+                  className="form-control" />
               </div>
               <div className="form-group">
                 <label>Start Date</label>
@@ -239,6 +221,8 @@ var MapRouter = React.createClass({
   }
 });
 
+// load google map service with callback
+loadScript("mapLoaded");
 window.mapLoaded = (function() {
   React.render(<MapRouter />, mountNode);
 });

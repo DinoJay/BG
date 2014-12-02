@@ -6,25 +6,24 @@ var http = require('http');
 var bodyParser = require('body-parser');
 var methodOverride = require('method-override');
 var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-var favicon = require('express-favicon');
-var mongoskin = require('mongoskin');
-// TODO
 var session = require('express-session');
 // Redis server to stor session
-//var RedisStore = require('connect-redis')(session);
-//var csrf = require('csurf')
+var RedisStore = require('connect-redis')(session);
+
 var nodejsx     = require('node-jsx').install();
 
 var development = process.env.MODE !== 'production';
 
-// route helper
-var tours = require('./routes/tourRoute.js');
-var comments = require('./routes/commentRoute.js');
-
 // client code bundling
 var webpackMiddleware = require('webpack-dev-middleware');
 var webpack = require('webpack');
+
+var routes = require('./routes');
+var tasks = require('./routes/tasks');
+var todo = require('./routes/todo');
+var logger = require('morgan');
+var favicon = require('express-favicon');
+var mongoskin = require('mongoskin');
 
 var mongoose = require('mongoose');
 var uriUtil = require('mongodb-uri');
@@ -43,8 +42,8 @@ var options = {
     }
   }
 };
-var mongodbUri = 'mongodb://heroku_app31182773:ccg276p6c72givh103mjv6j'+
-                 'sr9@ds051170.mongolab.com:51170/heroku_app31182773';
+var mongodbUri = 'mongodb://xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'+
+                 'xxxxx';
 var mongooseUri = uriUtil.formatMongoose(mongodbUri);
 
 mongoose.connect(mongooseUri, options);
@@ -77,6 +76,7 @@ var tourSchema = mongoose.Schema({
 var commentModel = mongoose.model('comments', commentSchema);
 var tourModel = mongoose.model('tours', tourSchema);
 
+
 // Initialize our Express app.
 var app = express();
 app.set('port', process.env.PORT || 3000);
@@ -105,25 +105,12 @@ app.use(bodyParser.json());
 app.use(methodOverride());
 app.use(cookieParser());
 
-app.param('tourId', function(req, res, next, tourId) {
-  req.tourId = tourId;
-  next();
-});
-// expose models to the request object
-app.use(function(req, res, next) {
-  req.db = {};
-  req.db.tourModel = tourModel;
-  req.db.commentModel = commentModel;
-  next();
-});
-
-/*
 var sessionMiddleware = session({
   store: new RedisStore(options),
-  secret: 'asdklasdkjsadksadlökfsdkpä',
+  secret: 'this is very secret',
 });
+
 app.use(sessionMiddleware);
-*/
 
 // less to css transformer
 app.use(require('less-middleware')(__dirname + '/public'));
@@ -148,7 +135,8 @@ if (development){
             { test: /\.jsx$/, loader: "jsx" }
       ]
     }
-  }),
+  }
+  ),
   {
     stats: {
       colors: true
@@ -158,56 +146,135 @@ if (development){
 
 // Configure Stormpath.
 app.use(stormpath.init(app, {
-  // TODO: but there is session enabled by stormpath
-  //sessionMiddleware: sessionMiddleware,
+  sessionMiddleware: sessionMiddleware,
   apiKeyId:     process.env.STORMPATH_API_KEY_ID,
   apiKeySecret: process.env.STORMPATH_API_KEY_SECRET,
   secretKey:    process.env.STORMPATH_SECRET_KEY,
   application:  process.env.STORMPATH_URL,
-  expandCustomData: true,
-
-  postRegistrationHandler: function(account, res, next) {
-    console.log('User:', account, 'just registered!');
-    res.locals.user.customData.joined = (new Date()
-                                     .toLocaleDateString("en-US"));
-    res.locals.user.save();
-    next();
-  },
   //views
   registrationView: __dirname + '/pages/register.jade',
   loginView: __dirname + '/pages/login.jade',
-  redirectUrl: '/dashboard',
+  // TODO: change this later
+  redirectUrl: '/tours',
 }));
 
-// home page.
+app.param('tourId', function(req, res, next, tourId) {
+  req.tourId = tourId;
+  next();
+});
+
+// Generate a simple home page.
 app.get('/', function(req, res) {
   res.render('index', {title: 'Home', user: req.user});
 });
 
 // Generate a simple dashboard page.
 app.get('/dashboard', stormpath.loginRequired, function(req, res) {
-  res.locals.user.customData.lastSeen = (new Date()
-                                          .toLocaleDateString("en-US"));
-  res.locals.user.save();
-  console.log(res.locals.user);
-  res.render('dashboard', {user: res.locals.user,
-                           gravatarLink: ""});
+  res.render('dashboard', {});
 });
 
 app.get('/tours', stormpath.loginRequired, function(req, res) {
   res.render('tours', {});
 });
-app.get('/tours/list', tours.list);
-app.put('/tours/register', tours.register);
-app.put('/tours/change/:tourId', tours.change);
+app.get('/tours/list', function(req, res, next){
+  // TODO: find not by registered user
+  tourModel.find({}, function(error, tours){
+    console.log("found tours:");
+    res.send({
+      user: req.user.username,
+      tours: tours
+    });
+  });
+});
+app.put('/tours/register', function(req, res, next){
+  if (!req.body) 
+    return next(new Error('No data provided.'));
 
-app.get('/tours/comments/:tourId', comments.list);
-app.put('/tours/comments/:tourId', comments.add);
+    tourModel.findById(req.body._id, function (err, doc){
+    if (!err) {
+      if (doc.reg_users.indexOf(req.user.username) !== -1) {
+        doc.reg_users.push(req.user.username);
+        doc.save();
+        res.send("success");
+      } else {
+        res.send("failure");
+      }
+    } else console.log(err);
+  });
+});
+
+app.get('/tours/comments/:tourId', function(req, res, next){
+  console.log(req.tourId);
+  commentModel.find({$query: { tourId: req.tourId }, 
+                    $orderby:{datetime:1}}, function(error, comments){
+    if (error) console.log(error);
+    console.log("found comments:");
+    console.log(req);
+    res.send({
+      comments: comments
+    });
+  });
+});
+app.put('/tours/comments/:tourId', function(req, res, next){
+  if (!req.body) return next(new Error('No data provided.'));
+  var comment = new commentModel({
+    user : req.user.username,
+    text : req.body.comment.text,
+    datetime : Date(),
+    tourId: req.tourId
+  });
+  comment.save(function(error, tour){
+    if (error) return next(error);
+    if (!tour) return next(new Error('Failed to save.'));
+    console.info('Added %s with id=%s', tour, tour._id);
+
+    commentModel.find({$query: { tourId: req.tourId }, 
+                      $orderby:{datetime:1}},
+                                         function(error, comments){
+      if (error) console.log(error);
+      console.log("comments to send:");
+      console.log(comments);
+      res.send({
+        comments: comments
+      });
+    });
+  });
+});
 
 app.get('/route', stormpath.loginRequired, function(req, res) {
   res.render('route', {});
 });
-app.put('/route/create', stormpath.loginRequired, tours.create);
+app.put('/route/create',
+        stormpath.loginRequired, function(req, res, next){
+
+  var tour = new tourModel({
+    name       : req.body.name,
+    origin     : req.body.origin,
+    dest       : req.body.dest,
+    start_date : req.body.end_date,
+    end_date   : req.body.start_date,
+    pers       : req.body.pers,
+    difficulty : req.body.difficulty,
+    descr      : req.body.descr,
+    route      : req.body.route,
+    user       : req.user.username,
+  });
+  if (!req.body) 
+    return next(new Error('No data provided.'));
+
+  tour.save(function(error, tour){
+    if (error) return next(error);
+    if (!tour) return next(new Error('Failed to save.'));
+    console.info('Added %s with id=%s', tour, tour._id);
+  });
+});
+
+app.get('/tasks', tasks.list);
+app.post('/tasks', tasks.markAllCompleted);
+app.post('/tasks', tasks.add);
+app.post('/tasks/:task_id', tasks.markCompleted);
+app.delete('/tasks/:task_id', tasks.del);
+app.get('/tasks/completed', tasks.completed);
 
 // Listen for incoming requests and serve them.
 app.listen(app.get('port'), function (err) {

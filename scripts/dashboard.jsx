@@ -53,6 +53,7 @@ var MyEvents = React.createClass({
   },
 
   tourChangeHandler: function(updatedTour) {
+    console.log("Updated TOUR", updatedTour);
     console.log("ID", updatedTour._id);
     var curData = this.state.data;
     var index = curData.indexOfObj("_id", updatedTour._id);

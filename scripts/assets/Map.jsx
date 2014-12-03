@@ -94,19 +94,25 @@ var GMap  = React.createClass({
                                   'directions_changed', function() {
       console.log("directions changed");
       this.handleRouteChange(this.state.dirDisplay.getDirections());
+      google.maps.event.trigger(this.state.map, 'resize');
     }.bind(this));
-    google.maps.event.trigger(this.state.map, 'resize');
   },
 
   // update markers if needed
   componentDidUpdate: function() {
     console.log("DEFAULT ROUTE", this.props.defaultRoute);
+    console.log("DIR DISPLAY", this.state.dirDisplay);
     if (this.props.latitude && this.props.longitude) this.markUpdate();
 
     if (this.props.origin && this.props.dest){
       this.routeUpdate();
     }
-    else if (this.props.defaultRoute) this.defaultRouteUpdate();
+    else {
+      if (this.props.defaultRoute &&
+        this.state.dirDisplay.getDirections() === undefined){
+          this.defaultRouteUpdate();
+      }
+    }
   },
 
   shouldComponentUpdate: function(newProps) {

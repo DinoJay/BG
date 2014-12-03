@@ -5,11 +5,13 @@
 var React          = require('react');
 var GMap           = require('./assets/Map');
 var CommentBox     = require('./assets/CommentBox');
-var Form           = require('./assets/DashChangeForm');
 
 var superagent     = require('superagent');
 
 var ModalDash = React.createClass({
+  mixins: [React.addons.LinkedStateMixin, 
+           require('./assets/DashChangeFormMixin')
+          ],
 
   Route: null,
 
@@ -17,7 +19,8 @@ var ModalDash = React.createClass({
     return({
       data: {},
       user: null,
-      dataChangeHandler: null
+      dataChangeHandler: null,
+      route: null
     });
   },
 
@@ -25,8 +28,6 @@ var ModalDash = React.createClass({
     return {
       error: null,
       open: false,
-      origin: null,
-      dest: null,
       latitude: null,
       longitude: null,
     };
@@ -54,19 +55,19 @@ var ModalDash = React.createClass({
     e.stopPropagation();
   },
 
-  getOriginDest: function(origin, dest) {
-    console.log("get origin and dest");
-    console.log("origin", origin, "dest", dest);
-    this.setState({
-      origin: origin,
-      dest: dest
-    });
+  shouldComponentUpdate: function(nextProps, nextState) {
+
+    // console.log("this props", this.props, "next props", nextProps);
+    // if (this.state.origin === null) return true;
+    // else return (this.state.origin !== nextState.origin || 
+    //         this.state.dest !== nextState.dest);
+    return true;
   },
 
   handleRouteChange: function(route) {
-    this.Route = route.routes[0].overview_path;
-    console.log("ROUTE CHANGE", route);
-    //this.forceUpdate();
+    this.setState({route: route.routes[0].overview_path,
+                  origin: null, dest: null});
+    console.log("ROUTE CHANGE STATE", this.state);
   },
 
   render: function() {
@@ -87,15 +88,11 @@ var ModalDash = React.createClass({
             <div className="modal-body">
               <div className="row">
                 <div className="col-md-4 sidebar">
-                  <Form data={this.props.data} 
-                    getOriginDest={this.getOriginDest}
-                    dataChangeHandler={this.props.dataChangeHandler}
-                    route={this.Route}
-                  />
+                  {this.form()}
                 </div>
                 <div className="col-md-8">
                   <GMap 
-                    defaultRoute={this.props.data.route}
+                    defaultRoute={this.state.route}
                     origin={this.state.origin}
                     dest={this.state.dest}
                     callback={this.handleRouteChange}
@@ -105,7 +102,7 @@ var ModalDash = React.createClass({
                 </div>
                 <div className="col-md-8">
                   <CommentBox tourId={this.props.data._id} 
-                    url="/tours/comments" pollInterval={2000} 
+                    url="/tours/comments" 
                     active={this.state.open}
                   />
                 </div>

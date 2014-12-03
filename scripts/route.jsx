@@ -98,7 +98,6 @@ var MapRouter = React.createClass({
 
   getDirDisplay : function(route) {
     //this.setState({ route: route });
-    console.log("Saving Route", route);
     this.Route = route;
   },
 

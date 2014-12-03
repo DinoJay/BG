@@ -5,11 +5,13 @@
 var React          = require('react');
 var GMap           = require('./assets/Map');
 var CommentBox     = require('./assets/CommentBox');
-var Form           = require('./assets/Form');
+var Form           = require('./assets/DashChangeForm');
 
 var superagent     = require('superagent');
 
 var ModalDash = React.createClass({
+
+  Route: null,
 
   getDefaultProps: function() {
     return({
@@ -26,7 +28,7 @@ var ModalDash = React.createClass({
       origin: null,
       dest: null,
       latitude: null,
-      longitude: null
+      longitude: null,
     };
   },
 
@@ -38,6 +40,7 @@ var ModalDash = React.createClass({
     }.bind(this));
 
     $("#modal").on('shown.bs.modal', function () {
+      console.log("SHOW", this.props);
       this.setState({open: true});
     }.bind(this));
   },
@@ -48,53 +51,11 @@ var ModalDash = React.createClass({
 
   // This was the key fix --- stop events from bubbling
   handleClick: function(e) {
-      e.stopPropagation();
-  },
-
-  register: function() {
-    superagent.put('/tours/register')
-    .send(this.props.data)
-    .end(function(error, res){
-      if (!error) {
-        if (res === "success"){
-          this.setState({error: false});
-        }
-        else {
-          this.setState({error: true});
-        }
-      }
-    }.bind(this));
-  },
-
-  handleSubmit: function(e) {
-    e.preventDefault();
-    var options; 
-
-    superagent.put('/tours/change/'+this.props.data._id)
-    .send(this.state)
-    .end(function(error, res){
-      if (!error) {
-        options = {position: "right", className: "success"};
-        $("#submit-button").notify("Tour changed!", options);
-        this.props.dataChangeHandler(this.state);
-      }
-      else {
-        options = {position: "right", className: "error"};
-        $("#submit-button").notify("BoOM! An error has occured!", 
-                                   options);
-      } 
-    }.bind(this));
-  },
-
-  onClose: function() {
-  },
-
-  componentDidUpdate: function() {
-    console.log(this.props);
+    e.stopPropagation();
   },
 
   getOriginDest: function(origin, dest) {
-    console.log("call callback");
+    console.log("get origin and dest");
     console.log("origin", origin, "dest", dest);
     this.setState({
       origin: origin,
@@ -102,16 +63,14 @@ var ModalDash = React.createClass({
     });
   },
 
-  handleRouteChange: function() {
-    console.log("ROUTE CHANGE");
+  handleRouteChange: function(route) {
+    this.Route = route.routes[0].overview_path;
+    console.log("ROUTE CHANGE", route);
+    //this.forceUpdate();
   },
 
   render: function() {
-    console.log("Props Data Route", this.props.data.route);
-    console.log("State", this.state.origin, this.state.dest);
-    console.log("latitude", this.state.latitude,
-                "longitude", this.state.longitude);
-
+    console.log("Props Data Route", this.props.data);
     return (
       <div id="modal" onClick={this.handleClick} 
         className="modal" role="dialog" aria-hidden="true">
@@ -131,7 +90,7 @@ var ModalDash = React.createClass({
                   <Form data={this.props.data} 
                     getOriginDest={this.getOriginDest}
                     dataChangeHandler={this.props.dataChangeHandler}
-                    handleSubmit={this.handleSubmit}
+                    route={this.Route}
                   />
                 </div>
                 <div className="col-md-8">

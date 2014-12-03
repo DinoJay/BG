@@ -41,7 +41,6 @@ var MyEvents = React.createClass({
 
   componentDidMount: function() {
     superagent.get('/tours/list', function(res){
-      console.log("BODY TOURS", res.body.tours);
       this.setState({
         data: res.body.tours,
         user: res.body.user

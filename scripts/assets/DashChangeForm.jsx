@@ -2,7 +2,8 @@
  * @jsx React.DOM
  * @flow
  */
-var React = require('react');
+var React      = require('react');
+var superagent = require('superagent');
 
 var Form = React.createClass({
   mixins: [React.addons.LinkedStateMixin],
@@ -36,6 +37,8 @@ var Form = React.createClass({
     this.refs.origin.getDOMNode().defaultValue = newProps.data.origin;
     this.refs.dest.getDOMNode().defaultValue = newProps.data.dest;
 
+    console.log("new PROPS ROUTE", newProps.route);
+
     this.setState({
       _id        : newProps.data._id,
       descr      : newProps.data.descr,
@@ -48,6 +51,7 @@ var Form = React.createClass({
       origin     : newProps.data.origin,
       start_date : newProps.data.start_date,
       user       : newProps.data.user,
+      route      : newProps.route
     });
   },
 
@@ -63,9 +67,8 @@ var Form = React.createClass({
       function() {
         var origin = this.refs.origin.getDOMNode().value;
         this.setState({origin: origin});
-        this.props.getOriginDest(this.state.origin, 
+        this.props.getOriginDest(this.state.origin,
                                  this.state.dest);
-        console.log(this.state.origin);
       }.bind(this)
     );
     google.maps.event.addListener(dest_compl, 'place_changed',
@@ -77,7 +80,7 @@ var Form = React.createClass({
     );
   },
 
-  handleLoc: function(e){
+  handleLoc: function(e) {
     e.preventDefault();
     navigator.geolocation.getCurrentPosition(function(position) {
       var latitude = position.coords.latitude;
@@ -88,20 +91,40 @@ var Form = React.createClass({
       this.setState({latitude : latitude,
                     longitude : longitude,
                     });
+    // TODO: Callback
+    }.bind(this));
+  },
+
+  handleSubmit: function(e) {
+    e.preventDefault();
+    var options;
+    console.log("State inside submit", this.state);
+    superagent.put('/tours/change/'+this.props.data._id)
+    .send(this.state)
+    .end(function(error, res) {
+      if (!error) {
+        options = {position: "right", className: "success"};
+        $("#submit-button").notify("Tour changed!", options);
+        this.props.dataChangeHandler(this.state);
+      }
+      else {
+        options = {position: "right", className: "error"};
+        $("#submit-button").notify("BoOM! An error has occured!",
+                                   options);
+        console.log(error);
+      }
     }.bind(this));
   },
 
   render: function() {
-    console.log("latitude", this.state.latitude,
-                "longitude", this.state.longitude);
 
     return(
-      <form onSubmit={this.props.handleSubmit} 
+      <form onSubmit={this.handleSubmit}
         className="bs-example bs-example-form">
         <div className="form-group">
           <label>Event Name</label>
-          <input ref="name" type="text" 
-            className="form-control" 
+          <input ref="name" type="text"
+            className="form-control"
             placeholder="Name of your Biking Event"
             valueLink={this.linkState('name')}
           />
@@ -109,8 +132,8 @@ var Form = React.createClass({
         <div className="form-group">
           <label>Origin </label>
           <div className="input-group">
-            <input ref="origin" type="text" 
-              className="form-control" 
+            <input ref="origin" type="text"
+              className="form-control"
               defaultValue={this.props.data.origin}
             />
             <span className="input-group-btn">
@@ -123,8 +146,8 @@ var Form = React.createClass({
         </div>
         <div className="form-group">
           <label>Dest</label>
-          <input ref="dest" type="text" 
-            className="form-control" 
+          <input ref="dest" type="text"
+            className="form-control"
             defaultValue={this.props.data.dest}
           />
         </div>
@@ -162,14 +185,14 @@ var Form = React.createClass({
         </div>
         <div className="form-group">
           <label>Description</label>
-          <textarea ref="descr" type="text" 
-            className="form-control" 
+          <textarea ref="descr" type="text"
+            className="form-control"
             placeholder="Add a description to your event"
             valueLink={this.linkState('descr')}
           />
         </div>
         <div className="form-group">
-          <button id="submit-button" type="submit" 
+          <button id="submit-button" type="submit"
            className="btn btn-default">
             Re-Save
           </button>

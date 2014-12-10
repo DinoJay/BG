@@ -81,17 +81,18 @@ exports.register = function(req, res, next){
 
     console.log("REgister that shit");
     req.db.tourModel.findById(req.body._id, function (err, doc){
-    if (!err) {
-      if (doc.reg_users.indexOf(req.user.username) === -1) {
-        doc.reg_users.push(req.user.username);
-        doc.save();
-        res.send("success");
-        next();
-      } else {
-        res.send("failure");
-        next();
-      }
-    } else console.log(err);
+      console.log(doc);
+      if (!err) {
+        if (doc.reg_users.indexOf(req.user.username) === -1) {
+          doc.reg_users.push(req.user.username);
+          doc.save();
+          res.send("success");
+          next();
+        } else {
+          res.send("failure");
+          next();
+        }
+      } else console.log(err);
   });
 };
 

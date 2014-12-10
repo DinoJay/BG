@@ -41,6 +41,13 @@ var CommentBox = React.createClass({
   loadCommentsFromServer: function() {
     superagent.get("/tours/comments/"+this.props.tourId, function(res) {
       this.setState({data: res.body.comments});
+      if (res.body.comments.length >= 3) {
+        var backdropHeightExt = (parseInt($('.modal-backdrop')[0].style
+                                          .height)+152)+'px';
+        $('.modal-backdrop').css({ 
+                                 'height':backdropHeightExt,
+                                  });
+      }
     }.bind(this));
   },
 

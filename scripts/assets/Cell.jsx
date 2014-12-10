@@ -25,7 +25,7 @@ var Cell = React.createClass({
 
   render: function(){
     return(
-      <ModalTrigger id={this.props.modalId}>
+      <ModalTrigger iD={this.props.modalId}>
         <div className="col-md-4" onClick={this.handleClick}>
           <div style={this.props.cellStyle} 
             className="cell panel panel-default custom-component">

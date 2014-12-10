@@ -16,7 +16,8 @@ var ModalTours = React.createClass({
   getDefaultProps: function() {
     return({
       data: {},
-      user: null
+      user: null,
+      id: "modal"
     });
   },
   getInitialState: function() {
@@ -29,11 +30,12 @@ var ModalTours = React.createClass({
   componentDidMount: function() {
     $(this.getDOMNode()).modal({background: true, keyboard: true, 
                                show: false});
-    $("#modal").on('hidden.bs.modal', function () {
+    var modalSel = "#"+this.props.id;
+    $(modalSel).on('hidden.bs.modal', function () {
       this.setState({error: null, open: false});
     }.bind(this));
 
-    $("#modal").on('shown.bs.modal', function () {
+    $(modalSel).on('shown.bs.modal', function () {
       this.setState({open: true});
     }.bind(this));
   },
@@ -52,11 +54,12 @@ var ModalTours = React.createClass({
     .send(this.props.data)
     .end(function(error, res){
       if (!error) {
-        if (res === "success"){
-          this.setState({error: false});
+         console.log("Response", res);
+        if (res.text === "success"){
+          console.log("Register success");
         } 
         else {
-          this.setState({error: true});
+          console.log("Register failure");
         }
       }
     }.bind(this));
@@ -64,9 +67,9 @@ var ModalTours = React.createClass({
 
   render: function() {
     return (
-      <div id="modal" onClick={this.handleClick} 
+      <div id={this.props.id} onClick={this.handleClick} 
         className="modal" role="dialog" aria-hidden="true">
-        <div className="modal-dialog">
+        <div className="modal-dialog modal-lg" >
           <div className="modal-content">
             <div className="modal-header">
               <button type="button" className="close" 
@@ -74,7 +77,7 @@ var ModalTours = React.createClass({
                 onClick={this.onClose}>×</button>
               <h4 className="modal-title">Event</h4>
             </div>
-            <div className="modal-body modal-resize">
+            <div className="modal-body">
               <div className="row"> 
                 <TourDescr data={this.props.data} />
                 <div className="col-md-12 col-xs-12"> 

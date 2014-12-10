@@ -9,18 +9,19 @@ var superagent      = require('superagent');
 var Cell            = require('./assets/Cell');
 var dataMethodMixin = require('./assets/dataMethodMixin');
 var loadScript      = require('./assets/loadScript');
-var Modal           = require('./ModalTours');
+var ModalTours           = require('./ModalTours');
 var columnMetaData  = require('./assets/columnMetaData');
 var CommentBox      = require('./assets/CommentBox');
 
 var mountNode       = document.getElementById("react-main-mount");
 
-var EventPage = React.createClass({
+var TourPage = React.createClass({
   mixins: [dataMethodMixin],
 
   getDefaultProps: function() {
     return { 
-      singleTourData: null
+      singleTourData: null,
+      modalId: "modalTours"
     };
   },
 
@@ -54,7 +55,9 @@ var EventPage = React.createClass({
             Here you can explore all tours created by other users. Feel 
             free to register if you like to.
           </p>
-          <Modal ref="payload" data={this.state.singleTourData}  />
+          <ModalTours id={this.props.modalId} 
+            data={this.state.singleTourData}  
+          />
         <Griddle
           getExternalResults={this.dataMethodHelper}
           columnMetadata={columnMetaData}
@@ -64,6 +67,7 @@ var EventPage = React.createClass({
           noDataMessage={"Please wait. Data is loading"}
           callback={this.onCellClick}
           cellStyle={{"min-height": "100px"}} 
+          modalId={this.props.modalId}
         />
       </div>
     </div>
@@ -74,5 +78,5 @@ var EventPage = React.createClass({
 // load google map service with callback
 loadScript("mapLoaded");
 window.mapLoaded = function() {
-  React.render(<EventPage />, mountNode);
+  React.render(<TourPage modalId="ModalTours" />, mountNode);
 };

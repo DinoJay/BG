@@ -7,12 +7,9 @@ block body
   link(href='/griddle_theme.css', rel='stylesheet')
   link(href='/comments.css', rel='stylesheet')
   script(src='/jquery-1.11.1.min.js', type="text/javascript")
-  script(src="jquery.easytabs.js", 
-    type="text/javascript")
   script(src='/tab.js', type="text/javascript")
   script(src='/modal.js', type="text/javascript")
   script(src='/notify.js', type="text/javascript")
-  .container
   .header-off
   .row
     .col-sm-10
@@ -73,10 +70,15 @@ block body
           i.fa.fa-google-plus.fa-2x
     // /col-3
     .col-sm-9
-      h2 Created Tours
-      #react-main-mount
-      h2 Registered Tours
-      #react-sub-mount
+      ul#myTab.nav.nav-tabs
+        li.active
+          a(href='#react-main-mount', data-toggle='tab') Created Events
+        li
+          a(href='#react-sub-mount', data-toggle='tab') Registered Events
+      .tab-content
+        #react-main-mount.tab-pane.active
+        // /tab-pane
+        #react-sub-mount.tab-pane
 
       script(src='/dashboard.bundle.js', type="text/javascript")
       // /tab-pane

@@ -113,21 +113,21 @@ var Form = {
     superagent.put('/tours/change/'+this.props.data._id)
     .send(this.getUpdatedData())
     .end(function(error, res) {
+      options = {
+        position: "left",
+        gap: 20,
+        className: "success",
+        autoHide: false,
+        arrowShow: false,
+      };
       if (!error) {
-        options = {
-          position: "right",
-          gap: 20,
-          className: "success",
-          autoHide: false,
-          arrowShow: false,
-        };
         $("#delete-button").notify("Tour changed!", options);
         this.props.dataChangeHandler(this.getUpdatedData());
         //this.setState({route: null});
       }
       else {
-        options = {position: "right", className: "error"};
-        $("#submit-button").notify("BoOM! An error has occured!",
+        options.className = "error";
+        $("#delete-button").notify("BoOM! An error has occured!",
                                    options);
         console.log(error);
       }
@@ -143,18 +143,18 @@ var Form = {
     .end(function(error, res) {
       if (!error) {
         options = {
-          position: "right",
+          position: "left",
           gap: 20,
-          className: "success",
+          className: "warn",
           autoHide: false,
           arrowShow: false,
         };
-        $("#delete-button").notify("Tour changed!", options);
-        this.props.dataChangeHandler(this.getUpdatedData());
+        $("#delete-button").notify("Tour deleted!", options);
+        this.props.dataDeleteHandler(this.getUpdatedData());
       }
       else {
         options = {position: "right", className: "error"};
-        $("#submit-button").notify("BoOM! An error has occured!",
+        $("#delete-button").notify("BoOM! An error has occured!",
                                    options);
         console.log(error);
       }
@@ -233,22 +233,6 @@ var Form = {
             placeholder="Add a description to your event"
             defaultValue={this.props.data.descr}
           />
-        </div>
-        <div className="btn-group-inline">
-          <div className="btn-inline">
-            <button id="submit-button" type="submit"
-              className="btn btn-default"
-              onClick={this.handleChange}>
-              Change
-            </button>
-          </div>
-          <div className="btn-inline">
-            <button id="delete-button" type="submit"
-              className="btn btn-default"
-              onClick={this.handleDelete}>
-              Delete
-            </button>
-          </div>
         </div>
       </form>
     );

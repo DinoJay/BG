@@ -9,7 +9,7 @@ var CommentBox     = require('./assets/CommentBox');
 var superagent     = require('superagent');
 
 var ModalDash = React.createClass({
-  mixins: [React.addons.LinkedStateMixin, 
+  mixins: [React.addons.LinkedStateMixin,
            require('./assets/DashChangeFormMixin')
           ],
 
@@ -35,7 +35,7 @@ var ModalDash = React.createClass({
   },
 
   componentDidMount: function() {
-    $(this.getDOMNode()).modal({background: true, keyboard: true, 
+    $(this.getDOMNode()).modal({background: true, keyboard: true,
                                show: false});
     var modalSel = "#"+this.props.id;
     console.log("modalDash Props", this.props);
@@ -62,7 +62,7 @@ var ModalDash = React.createClass({
 
     // console.log("this props", this.props, "next props", nextProps);
     // if (this.state.origin === null) return true;
-    // else return (this.state.origin !== nextState.origin || 
+    // else return (this.state.origin !== nextState.origin ||
     //         this.state.dest !== nextState.dest);
     return true;
   },
@@ -74,12 +74,12 @@ var ModalDash = React.createClass({
 
   render: function() {
     return (
-      <div id={this.props.id} onClick={this.handleClick} 
+      <div id={this.props.id} onClick={this.handleClick}
         className="modal" role="dialog" aria-hidden="true">
-        <div className="modal-dialog modal-large">
+        <div className="modal-dialog modal-lg">
           <div className="modal-content">
             <div className="modal-header">
-              <button type="button" className="close" 
+              <button type="button" className="close"
                 data-dismiss="modal" aria-hidden="true"
                 onClick={this.onClose}>×</button>
               <h4 className="modal-title">
@@ -92,28 +92,40 @@ var ModalDash = React.createClass({
                   {this.form()}
                 </div>
                 <div className="col-md-8">
-                  <GMap 
+                  <GMap
                     defaultRoute={this.state.route}
                     origin={this.state.origin}
                     dest={this.state.dest}
                     callback={this.handleRouteChange}
                     longitude={this.state.longitude}
-                    latitude={this.state.latitude} 
+                    latitude={this.state.latitude}
                   />
                 </div>
                 <div className="col-md-8">
-                  <CommentBox tourId={this.props.data._id} 
-                    url="/tours/comments" 
+                  <CommentBox tourId={this.props.data._id}
+                    url="/tours/comments"
                     active={this.state.open}
                   />
                 </div>
               </div>
             </div>
             <div className="modal-footer">
-              <button type="button" className="btn btn-primary" 
-                data-dismiss={this.props.id} onClick={this.onClose}>
-                Close
-              </button>
+              <div className="btn-group-inline">
+                <div className="btn-inline">
+                  <button id="delete-button" type="submit"
+                    className="btn btn-warning"
+                    onClick={this.handleDelete}>
+                    Delete
+                  </button>
+                </div>
+                <div className="btn-inline">
+                  <button id="submit-button" type="submit"
+                    className="btn btn-primary"
+                    onClick={this.handleChange}>
+                    Change
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

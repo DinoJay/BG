@@ -5,17 +5,18 @@
 var React           = require('react');
 var Griddle         = require('griddle-react');
 var superagent      = require('superagent');
-var TabPanel = require('react-tab-panel');
+var TabPanel        = require('react-tab-panel');
 
 var dataMethodMixin = require('./assets/dataMethodMixin');
 var Cell            = require('./assets/Cell');
 var columnMetaData  = require('./assets/columnMetaData');
 var loadScript      = require('./assets/loadScript');
 
-var Modal           = require('./ModalDash');
+var ModalDash       = require('./ModalDash');
+var ModalTours      = require('./ModalTours');
 
-var mainMountNode       = document.getElementById("react-main-mount");
-var subMountNode       = document.getElementById("react-sub-mount");
+var mainMountNode   = document.getElementById("react-main-mount");
+var subMountNode    = document.getElementById("react-sub-mount");
 
 // helper function
 Array.prototype.indexOfObj = function arrayObjectIndexOf(property,
@@ -64,13 +65,21 @@ var ToursCreated = React.createClass({
     this.setState({data: curData});
   },
 
+  tourDeleteHandler: function(updatedTour) {
+    var curData = this.state.data;
+    var index = curData.indexOfObj("_id", updatedTour._id);
+    curData.splice(index, 1);
+    this.setState({data: curData});
+  },
+
   render: function(){
     return(
       <div>
-        <Modal id={this.props.modalId} 
+        <ModalDash id={this.props.modalId} 
           data={this.state.tourRecord}
           user={this.state.user} 
           dataChangeHandler={this.tourChangeHandler}
+          dataDeleteHandler={this.tourDeleteHandler}
         />
         <Griddle
           getExternalResults={this.dataMethodHelper}
@@ -130,7 +139,7 @@ var ToursRegistered = React.createClass({
   render: function(){
     return(
       <div>
-        <Modal id={this.props.modalId} 
+        <ModalTours id={this.props.modalId} 
           data={this.state.tourRecord}
           user={this.state.user} 
         />
@@ -151,39 +160,8 @@ var ToursRegistered = React.createClass({
   }
 });
 
-var Dashboard = React.createClass({
-
-    getInitialState: function(){
-        return {
-            activeIndex: 1
-        };
-    },
-
-    handleChange: function(index){
-        this.setState({
-            activeIndex: index
-        });
-    },
-
-    render: function() {
-        return (
-          <TabPanel activeIndex={this.state.activeIndex}
-            onChange={this.handleChange}
-            titleStyle={{padding: 10}}
-            >
-            <div title="Created Tours">
-              <ToursCreated modalId="modal1"/>
-            </div>
-            <div title="Created Tours">
-              <div title="Registered Tours">
-                <ToursRegistered modalId="modal2"/>
-              </div>
-            </div>
-          </TabPanel>
-        );
-    }
-});
 loadScript("mapLoaded");
 window.mapLoaded = function() {
-  React.render(<Dashboard />, mainMountNode);
+  React.render( <ToursCreated modalId="modal1"/>, mainMountNode);
+  React.render( <ToursRegistered modalId="modal2"/>, subMountNode);
 };

@@ -43,6 +43,7 @@ var MapRouter = React.createClass({
                               .Autocomplete(this.refs.dest.getDOMNode());
     google.maps.event.addListener(dest_compl, 'place_changed', 
                                   function() {
+                                    console.log("TRIGGER");
                                     this.handleRouteChange();
                                   }.bind(this)
                                  );
@@ -129,6 +130,10 @@ var MapRouter = React.createClass({
     return(
       <div className="row">
         <div className="header-off" />
+        <h1>Create your own Tour and share it!</h1>
+        <p className="lead">
+          Choose your date, select a route and wait TODO
+        </p>
         <div className="col-md-4 sidebar">
           <form onSubmit={this.handleSubmit} 
             className="bs-example bs-example-form">

@@ -3,6 +3,7 @@
  * @flow
  */
 var React      = require('react');
+
 var superagent = require('superagent');
 
 var Form = {
@@ -11,6 +12,11 @@ var Form = {
     return{
       dest       : null,
       origin     : null,
+      desrc      : null,
+      difficulty : null,
+      end_date   : null,
+      name       : null,
+      pers       : null,
       start_date : null,
     };
   },
@@ -18,11 +24,24 @@ var Form = {
   componentWillReceiveProps: function(newProps) {
     var origin = newProps.data.origin;
     var dest = newProps.data.dest;
+    var descr = newProps.data.descr;
+    var difficulty = newProps.data.difficulty;
+    var end_date = newProps.data.end_date;
+    var name = newProps.data.name;
+    var pers = newProps.data.pers;
+    var start_date = newProps.data.start_date;
+
     this.refs.origin.getDOMNode().defaultValue = origin;
     this.refs.dest.getDOMNode().defaultValue = dest;
+    this.refs.descr.getDOMNode().defaultValue = descr;
+    this.refs.difficulty.getDOMNode().defaultValue = difficulty;
+    this.refs.end_date.getDOMNode().defaultValue = end_date;
+    this.refs.name.getDOMNode().defaultValue = name;
+    this.refs.pers.getDOMNode().defaultValue = pers;
+    this.refs.start_date.getDOMNode().defaultValue = start_date;
 
-    this.setState({route: newProps.data.route });
-    console.log("new PROPS ROUTE", newProps.data.route);
+    this.setState({route: newProps.data.route});
+    console.log("new PROPS", newProps.data);
   },
 
   componentDidMount: function() {
@@ -59,8 +78,12 @@ var Form = {
       var lat_long_str = '('+longitude.toString()+
                          ', '+ latitude.toString() +')';
       this.refs.origin.getDOMNode().value = lat_long_str;
+      var dest   = this.refs.dest.getDOMNode().value;
+      var origin = this.refs.origin.getDOMNode().value;
       this.setState({latitude : latitude,
                     longitude : longitude,
+                    origin: origin,
+                    dest : dest
                     });
     // TODO: Callback
     }.bind(this));
@@ -83,19 +106,24 @@ var Form = {
     });
   },
 
-  handleSubmit: function(e) {
+  handleChange: function(e) {
     e.preventDefault();
+    console.log("handle change", e);
     var options;
-    console.log("State inside submit", this.state);
     superagent.put('/tours/change/'+this.props.data._id)
     .send(this.getUpdatedData())
     .end(function(error, res) {
       if (!error) {
-        options = {position: "right", className: "success"};
-        $("#submit-button").notify("Tour changed!", options);
+        options = {
+          position: "right",
+          gap: 20,
+          className: "success",
+          autoHide: false,
+          arrowShow: false,
+        };
+        $("#delete-button").notify("Tour changed!", options);
         this.props.dataChangeHandler(this.getUpdatedData());
-        this.props.dataChangeHandler(this.getUpdatedData());
-        this.setState({route: null});
+        //this.setState({route: null});
       }
       else {
         options = {position: "right", className: "error"};
@@ -106,12 +134,39 @@ var Form = {
     }.bind(this));
   },
 
-  form: function() { 
+  handleDelete: function(e) {
+    e.preventDefault();
+    console.log("handle Delete", e);
+    var options;
+    superagent.del('/tours/delete/'+this.props.data._id)
+    .send(this.getUpdatedData())
+    .end(function(error, res) {
+      if (!error) {
+        options = {
+          position: "right",
+          gap: 20,
+          className: "success",
+          autoHide: false,
+          arrowShow: false,
+        };
+        $("#delete-button").notify("Tour changed!", options);
+        this.props.dataChangeHandler(this.getUpdatedData());
+      }
+      else {
+        options = {position: "right", className: "error"};
+        $("#submit-button").notify("BoOM! An error has occured!",
+                                   options);
+        console.log(error);
+      }
+    }.bind(this));
+  },
+
+  form: function() {
     return(
-      <form onSubmit={this.handleSubmit}
+      <form
         className="bs-example bs-example-form">
         <div className="form-group">
-          <label>Event Name</label>
+          <label>Tour Name</label>
           <input ref="name" type="text"
             className="form-control"
             placeholder="Name of your Biking Event"
@@ -144,6 +199,7 @@ var Form = {
           <input ref="start_date" type="date"
             className="form-control"
             placeholder="Start Date of your Bike Tour"
+            defaultValue={this.props.data.start_date}
           />
         </div>
         <div className="form-group">
@@ -151,6 +207,7 @@ var Form = {
           <input ref="end_date" type="date"
             className="form-control"
             placeholder="End Date of your Bike Tour"
+            defaultValue={this.props.data.end_date}
           />
         </div>
         <div className="form-group">
@@ -158,6 +215,7 @@ var Form = {
           <input ref="pers" type="number"
             className="form-control"
             placeholder="limit of persons who can join you"
+            defaultValue={this.props.data.pers}
           />
         </div>
         <div className="form-group">
@@ -165,6 +223,7 @@ var Form = {
           <input ref="difficulty" type="number"
             className="form-control"
             placeholder="Denote here the level of Difficulty"
+            defaultValue={this.props.data.difficulty}
           />
         </div>
         <div className="form-group">
@@ -172,13 +231,24 @@ var Form = {
           <textarea ref="descr" type="text"
             className="form-control"
             placeholder="Add a description to your event"
+            defaultValue={this.props.data.descr}
           />
         </div>
-        <div className="form-group">
-          <button id="submit-button" type="submit"
-           className="btn btn-default">
-            Re-Save
-          </button>
+        <div className="btn-group-inline">
+          <div className="btn-inline">
+            <button id="submit-button" type="submit"
+              className="btn btn-default"
+              onClick={this.handleChange}>
+              Change
+            </button>
+          </div>
+          <div className="btn-inline">
+            <button id="delete-button" type="submit"
+              className="btn btn-default"
+              onClick={this.handleDelete}>
+              Delete
+            </button>
+          </div>
         </div>
       </form>
     );

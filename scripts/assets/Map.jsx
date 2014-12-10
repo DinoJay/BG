@@ -92,7 +92,6 @@ var GMap  = React.createClass({
 
     google.maps.event.addListener(this.state.dirDisplay, 
                                   'directions_changed', function() {
-      console.log("directions changed");
       this.handleRouteChange(this.state.dirDisplay.getDirections());
       google.maps.event.trigger(this.state.map, 'resize');
     }.bind(this));
@@ -100,8 +99,6 @@ var GMap  = React.createClass({
 
   // update markers if needed
   componentDidUpdate: function() {
-    console.log("DEFAULT ROUTE", this.props.defaultRoute);
-    console.log("DIR DISPLAY", this.state.dirDisplay);
     if (this.props.latitude && this.props.longitude) this.markUpdate();
 
     if (this.props.origin && this.props.dest){
@@ -117,17 +114,19 @@ var GMap  = React.createClass({
 
   shouldComponentUpdate: function(newProps) {
     // TODO: looks terrible
-    if (this.props.defaultRoute) return true;
-    if (this.props.origin && this.props.dest && 
-        newProps.origin && newProps.des && 
-          this.props.origin === newProps.origin &&
-                                this.props.dest === newProps.dest) {
-      return false;
-    } else return true;
+    /*
+     * if (this.props.defaultRoute) return true;
+     * if (this.props.origin && this.props.dest && 
+     *     newProps.origin && newProps.des && 
+     *       this.props.origin === newProps.origin &&
+     *                             this.props.dest === newProps.dest) {
+     *   return false;
+     * } else return true;
+     */
+    return true;
   },
 
   defaultRouteUpdate: function() {
-    console.log("DEFAULTROUTEUPDATE");
     this.state.polyline.setMap(null);
     this.state.markerA.setMap(null);
     this.state.markerB.setMap(null);
@@ -167,7 +166,6 @@ var GMap  = React.createClass({
   },
 
   handleRouteChange: function(res) {
-    console.log("Handle route change!!!");
     if (this.props.callback) this.props.callback(res);
   },
 

@@ -109,6 +109,10 @@ app.param('tourId', function(req, res, next, tourId) {
   req.tourId = tourId;
   next();
 });
+app.param('userId', function(req, res, next, userId) {
+  req.userId = userId;
+  next();
+});
 // expose models to the request object
 app.use(function(req, res, next) {
   req.db = {};
@@ -184,12 +188,16 @@ app.get('/', function(req, res) {
   res.render('index', {title: 'Home', user: req.user});
 });
 
+app.get('/getUsername', function(req, res) {
+  res.send({user:req.user.username});
+});
+
 // Generate a simple dashboard page.
 app.get('/dashboard', stormpath.loginRequired, function(req, res) {
   res.locals.user.customData.lastSeen = (new Date()
                                           .toLocaleDateString("en-US"));
   res.locals.user.save();
-  console.log(res.locals.user);
+  //console.log(res.locals.user);
   res.render('dashboard', {user: res.locals.user,
                            gravatarLink: ""});
 });
@@ -198,8 +206,10 @@ app.get('/tours', stormpath.loginRequired, function(req, res) {
   res.render('tours', {});
 });
 app.get('/tours/list', tours.list);
+app.get('/tours/list/:userId', tours.listRegTours);
 app.put('/tours/register', tours.register);
 app.put('/tours/change/:tourId', tours.change);
+app.del('/tours/delete/:tourId', tours.del);
 
 app.get('/tours/comments/:tourId', comments.list);
 app.put('/tours/comments/:tourId', comments.add);

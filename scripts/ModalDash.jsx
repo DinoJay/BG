@@ -20,7 +20,8 @@ var ModalDash = React.createClass({
       data: {},
       user: null,
       dataChangeHandler: null,
-      route: null
+      route: null,
+      id : null
     });
   },
 
@@ -36,12 +37,14 @@ var ModalDash = React.createClass({
   componentDidMount: function() {
     $(this.getDOMNode()).modal({background: true, keyboard: true, 
                                show: false});
-    $("#modal").on('hidden.bs.modal', function () {
+    var modalSel = "#"+this.props.id;
+    console.log("modalDash Props", this.props);
+    console.log("modal selector", modalSel);
+    $(modalSel).on('hidden.bs.modal', function () {
       this.setState({error: null, open: false});
     }.bind(this));
 
-    $("#modal").on('shown.bs.modal', function () {
-      console.log("SHOW", this.props);
+    $(modalSel).on('shown.bs.modal', function () {
       this.setState({open: true});
     }.bind(this));
   },
@@ -67,13 +70,11 @@ var ModalDash = React.createClass({
   handleRouteChange: function(route) {
     this.setState({route: route.routes[0].overview_path,
                   origin: null, dest: null});
-    console.log("ROUTE CHANGE STATE", this.state);
   },
 
   render: function() {
-    console.log("Props Data Route", this.props.data);
     return (
-      <div id="modal" onClick={this.handleClick} 
+      <div id={this.props.id} onClick={this.handleClick} 
         className="modal" role="dialog" aria-hidden="true">
         <div className="modal-dialog modal-large">
           <div className="modal-content">
@@ -110,7 +111,7 @@ var ModalDash = React.createClass({
             </div>
             <div className="modal-footer">
               <button type="button" className="btn btn-primary" 
-                data-dismiss="modal" onClick={this.onClose}>
+                data-dismiss={this.props.id} onClick={this.onClose}>
                 Close
               </button>
             </div>

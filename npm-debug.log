@@ -1,27 +1,52 @@
 0 info it worked if it ends with ok
-1 verbose cli [ '/usr/bin/node', '/usr/bin/npm', 'start' ]
+1 verbose cli [ '/usr/bin/node',
+1 verbose cli   '/usr/bin/npm',
+1 verbose cli   'i',
+1 verbose cli   '--save',
+1 verbose cli   'git+https://github.com/radubrehar/react-tab-panel@1.0.0' ]
 2 info using npm@1.4.28
 3 info using node@v0.10.33
 4 verbose node symlink /usr/bin/node
-5 verbose run-script [ 'prestart', 'start', 'poststart' ]
-6 info prestart BG@0.0.0
-7 info start BG@0.0.0
-8 verbose unsafe-perm in lifecycle true
-9 info BG@0.0.0 Failed to exec start script
-10 error BG@0.0.0 start: `nodemon server.js`
-10 error Exit status 1
-11 error Failed at the BG@0.0.0 start script.
-11 error This is most likely a problem with the BG package,
-11 error not with npm itself.
-11 error Tell the author that this fails on your system:
-11 error     nodemon server.js
-11 error You can get their info via:
-11 error     npm owner ls BG
-11 error There is likely additional logging output above.
-12 error System Linux 3.17.0-031700-generic
-13 error command "/usr/bin/node" "/usr/bin/npm" "start"
-14 error cwd /home/djan/dev/stormpath-test
-15 error node -v v0.10.33
-16 error npm -v 1.4.28
-17 error code ELIFECYCLE
-18 verbose exit [ 1, true ]
+5 warn package.json BG@0.0.0 No repository field.
+6 warn package.json BG@0.0.0 No README data
+7 verbose readDependencies using package.json deps
+8 verbose cache add [ 'git+https://github.com/radubrehar/react-tab-panel@1.0.0',
+8 verbose cache add   null ]
+9 verbose cache add name=undefined spec="git+https://github.com/radubrehar/react-tab-panel@1.0.0" args=["git+https://github.com/radubrehar/react-tab-panel@1.0.0",null]
+10 verbose parsed url { protocol: 'git+https:',
+10 verbose parsed url   slashes: true,
+10 verbose parsed url   auth: null,
+10 verbose parsed url   host: 'github.com',
+10 verbose parsed url   port: null,
+10 verbose parsed url   hostname: 'github.com',
+10 verbose parsed url   hash: null,
+10 verbose parsed url   search: null,
+10 verbose parsed url   query: null,
+10 verbose parsed url   pathname: '/radubrehar/react-tab-panel@1.0.0',
+10 verbose parsed url   path: '/radubrehar/react-tab-panel@1.0.0',
+10 verbose parsed url   href: 'git+https://github.com/radubrehar/react-tab-panel@1.0.0' }
+11 silly lockFile ee1a062c-radubrehar-react-tab-panel-1-0-0 https://github.com/radubrehar/react-tab-panel@1.0.0
+12 verbose lock https://github.com/radubrehar/react-tab-panel@1.0.0 /home/djan/.npm/ee1a062c-radubrehar-react-tab-panel-1-0-0.lock
+13 verbose addRemoteGit [ 'https://github.com/radubrehar/react-tab-panel@1.0.0',
+13 verbose addRemoteGit   'master' ]
+14 error git clone https://github.com/radubrehar/react-tab-panel@1.0.0 Cloning into bare repository '/home/djan/.npm/_git-remotes/https-github-com-radubrehar-react-tab-panel-1-0-0-ee1a062c'...
+14 error git clone https://github.com/radubrehar/react-tab-panel@1.0.0 fatal: unable to access 'https://github.com/radubrehar/react-tab-panel@1.0.0/': The requested URL returned error: 400
+15 silly lockFile ee1a062c-radubrehar-react-tab-panel-1-0-0 https://github.com/radubrehar/react-tab-panel@1.0.0
+16 silly lockFile ee1a062c-radubrehar-react-tab-panel-1-0-0 https://github.com/radubrehar/react-tab-panel@1.0.0
+17 error Error: Command failed: Cloning into bare repository '/home/djan/.npm/_git-remotes/https-github-com-radubrehar-react-tab-panel-1-0-0-ee1a062c'...
+17 error fatal: unable to access 'https://github.com/radubrehar/react-tab-panel@1.0.0/': The requested URL returned error: 400
+17 error
+17 error     at ChildProcess.exithandler (child_process.js:648:15)
+17 error     at ChildProcess.emit (events.js:98:17)
+17 error     at maybeClose (child_process.js:756:16)
+17 error     at Process.ChildProcess._handle.onexit (child_process.js:823:5)
+18 error If you need help, you may report this *entire* log,
+18 error including the npm and node versions, at:
+18 error     <http://github.com/npm/npm/issues>
+19 error System Linux 3.17.0-031700-generic
+20 error command "/usr/bin/node" "/usr/bin/npm" "i" "--save" "git+https://github.com/radubrehar/react-tab-panel@1.0.0"
+21 error cwd /home/djan/dev/stormpath-test
+22 error node -v v0.10.33
+23 error npm -v 1.4.28
+24 error code 128
+25 verbose exit [ 1, true ]

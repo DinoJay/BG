@@ -14,7 +14,8 @@ var Cell = React.createClass({
       data   : {},
       map_id : "dir-panel",
       cellStyle  : {"min-height": "100px"},
-      callback: null
+      callback: null,
+      modalId: "modal"
     };
   },
 
@@ -23,9 +24,8 @@ var Cell = React.createClass({
   },
 
   render: function(){
-    console.log(this.props);
     return(
-      <ModalTrigger>
+      <ModalTrigger id={this.props.modalId}>
         <div className="col-md-4" onClick={this.handleClick}>
           <div style={this.props.cellStyle} 
             className="cell panel panel-default custom-component">

@@ -7,6 +7,8 @@ block body
   link(href='/griddle_theme.css', rel='stylesheet')
   link(href='/comments.css', rel='stylesheet')
   script(src='/jquery-1.11.1.min.js', type="text/javascript")
+  script(src="jquery.easytabs.js", 
+    type="text/javascript")
   script(src='/tab.js', type="text/javascript")
   script(src='/modal.js', type="text/javascript")
   script(src='/notify.js', type="text/javascript")
@@ -71,96 +73,12 @@ block body
           i.fa.fa-google-plus.fa-2x
     // /col-3
     .col-sm-9
-      ul#myTab.nav.nav-tabs
-        li.active
-          a(href='#home', data-toggle='tab') My Events
-        li
-          a(href='#messages', data-toggle='tab') Registered Events
-      .tab-content
-        #react-main-mount
-        // /tab-pane
-        #messages.tab-pane
-          h2
-          ul.list-group
-            li.list-group-item.text-muted Inbox
-            li.list-group-item.text-right
-              a.pull-left(href='#') Here is your a link to the latest summary report from the..
-              | 2.13.2014
-            li.list-group-item.text-right
-              a.pull-left(href='#') Hi Joe, There has been a request on your account since that was..
-              | 2.11.2014
-            li.list-group-item.text-right
-              a.pull-left(href='#') Nullam sapien massaortor. A lobortis vitae, condimentum justo...
-              | 2.11.2014
-            li.list-group-item.text-right
-              a.pull-left(href='#') Thllam sapien massaortor. A lobortis vitae, condimentum justo...
-              | 2.11.2014
-            li.list-group-item.text-right
-              a.pull-left(href='#') Wesm sapien massaortor. A lobortis vitae, condimentum justo...
-              | 2.11.2014
-            li.list-group-item.text-right
-              a.pull-left(href='#') For therepien massaortor. A lobortis vitae, condimentum justo...
-              | 2.11.2014
-            li.list-group-item.text-right
-              a.pull-left(href='#') Also we, havesapien massaortor. A lobortis vitae, condimentum justo...
-              | 2.11.2014
-            li.list-group-item.text-right
-              a.pull-left(href='#') Swedish chef is assaortor. A lobortis vitae, condimentum justo...
-              | 2.11.2014
-        // /tab-pane
-        #settings.tab-pane
-          hr
-          form#registrationForm.form(action='##', method='post')
-            .form-group
-              .col-xs-6
-                label(for='first_name')
-                  h4 First name
-                input#first_name.form-control(type='text', name='first_name', placeholder='first name', title='enter your first name if any.')
-            .form-group
-              .col-xs-6
-                label(for='last_name')
-                  h4 Last name
-                input#last_name.form-control(type='text', name='last_name', placeholder='last name', title='enter your last name if any.')
-            .form-group
-              .col-xs-6
-                label(for='phone')
-                  h4 Phone
-                input#phone.form-control(type='text', name='phone', placeholder='enter phone', title='enter your phone number if any.')
-            .form-group
-              .col-xs-6
-                label(for='mobile')
-                  h4 Mobile
-                input#mobile.form-control(type='text', name='mobile', placeholder='enter mobile number', title='enter your mobile number if any.')
-            .form-group
-              .col-xs-6
-                label(for='email')
-                  h4 Email
-                input#email.form-control(type='email', name='email', placeholder='you@email.com', title='enter your email.')
-            .form-group
-              .col-xs-6
-                label(for='email')
-                  h4 Location
-                input#location.form-control(type='email', placeholder='somewhere', title='enter a location')
-            .form-group
-              .col-xs-6
-                label(for='password')
-                  h4 Password
-                input#password.form-control(type='password', name='password', placeholder='password', title='enter your password.')
-            .form-group
-              .col-xs-6
-                label(for='password2')
-                  h4 Verify
-                input#password2.form-control(type='password', name='password2', placeholder='password2', title='enter your password2.')
-            .form-group
-              .col-xs-12
-                br
-                button.btn.btn-lg.btn-success(type='submit')
-                  i.glyphicon.glyphicon-ok-sign
-                  | Save
-                button.btn.btn-lg(type='reset')
-                  i.glyphicon.glyphicon-repeat
-                  | Reset
-        script(src='/dashboard.bundle.js', type="text/javascript")
+      h2 Created Tours
+      #react-main-mount
+      h2 Registered Tours
+      #react-sub-mount
+
+      script(src='/dashboard.bundle.js', type="text/javascript")
       // /tab-pane
     // /tab-content
   // /col-9

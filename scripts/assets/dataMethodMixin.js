@@ -24,7 +24,7 @@ var dataMethodMixin = {
 
     callback({
       results : parRes,
-      totalResults: this.state.data.length
+      totalResults: parRes.length
     }); 
   },
 };

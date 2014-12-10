@@ -1,7 +1,7 @@
 module.exports = {
     entry: {
       dashboard: __dirname + '/scripts/dashboard.jsx',
-      tasks: __dirname + '/scripts/tours.jsx',
+      tours: __dirname + '/scripts/tours.jsx',
       route: __dirname + '/scripts/route.jsx'
     },
       output: {

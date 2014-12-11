@@ -10,14 +10,10 @@ var Form = {
 
   getInitialState: function() {
     return{
-      dest       : null,
-      origin     : null,
-      desrc      : null,
-      difficulty : null,
-      end_date   : null,
-      name       : null,
-      pers       : null,
-      start_date : null,
+      dest      : null,
+      origin    : null,
+      latitude  : null,
+      longitude : null,
     };
   },
 
@@ -104,61 +100,6 @@ var Form = {
       user       : this.props.data.user,
       route      : this.state.route
     });
-  },
-
-  handleChange: function(e) {
-    e.preventDefault();
-    console.log("handle change", e);
-    var options;
-    superagent.put('/tours/change/'+this.props.data._id)
-    .send(this.getUpdatedData())
-    .end(function(error, res) {
-      options = {
-        position: "left",
-        gap: 20,
-        className: "success",
-        autoHide: false,
-        arrowShow: false,
-      };
-      if (!error) {
-        $("#delete-button").notify("Tour changed!", options);
-        this.props.dataChangeHandler(this.getUpdatedData());
-        //this.setState({route: null});
-      }
-      else {
-        options.className = "error";
-        $("#delete-button").notify("BoOM! An error has occured!",
-                                   options);
-        console.log(error);
-      }
-    }.bind(this));
-  },
-
-  handleDelete: function(e) {
-    e.preventDefault();
-    console.log("handle Delete", e);
-    var options;
-    superagent.del('/tours/delete/'+this.props.data._id)
-    .send(this.getUpdatedData())
-    .end(function(error, res) {
-      if (!error) {
-        options = {
-          position: "left",
-          gap: 20,
-          className: "warn",
-          autoHide: false,
-          arrowShow: false,
-        };
-        $("#delete-button").notify("Tour deleted!", options);
-        this.props.dataDeleteHandler(this.getUpdatedData());
-      }
-      else {
-        options = {position: "right", className: "error"};
-        $("#delete-button").notify("BoOM! An error has occured!",
-                                   options);
-        console.log(error);
-      }
-    }.bind(this));
   },
 
   form: function() {

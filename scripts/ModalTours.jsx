@@ -28,7 +28,7 @@ var ModalTours = React.createClass({
   },
 
   componentDidMount: function() {
-    $(this.getDOMNode()).modal({background: true, keyboard: true, 
+    $(this.getDOMNode()).modal({background: true, keyboard: true,
                                show: false});
     var modalSel = "#"+this.props.id;
     $(modalSel).on('hidden.bs.modal', function () {
@@ -50,16 +50,31 @@ var ModalTours = React.createClass({
   },
 
   handleRegister: function() {
+    options = {
+      position: "left",
+      gap: 20,
+      className: "success",
+      autoHide: false,
+      arrowShow: false,
+    };
     superagent.put('/tours/register')
     .send(this.props.data)
     .end(function(error, res){
-      if (!error) {
-         console.log("Response", res);
+      if (error) {
+        options.className = "error";
+        $("#reg-btn").notify("BoOM! An error has occured!",
+                             options);
+      }
+      else {
+        console.log("Response", res);
         if (res.text === "success"){
-          console.log("Register success");
-        } 
+          $("#reg-btn").notify("Tour changed!", options);
+          this.props.dataChangeHandler(this.getUpdatedData());
+        }
         else {
-          console.log("Register failure");
+          options.className = "warn";
+          $("#reg-btn").notify("BoOM! You are already registered "+
+                                     "for this tour!", options);
         }
       }
     }.bind(this));
@@ -67,35 +82,31 @@ var ModalTours = React.createClass({
 
   render: function() {
     return (
-      <div id={this.props.id} onClick={this.handleClick} 
+      <div id={this.props.id} onClick={this.handleClick}
         className="modal" role="dialog" aria-hidden="true">
         <div className="modal-dialog modal-lg" >
           <div className="modal-content">
             <div className="modal-header">
-              <button type="button" className="close" 
+              <button type="button" className="close"
                 data-dismiss="modal" aria-hidden="true"
                 onClick={this.onClose}>×</button>
               <h4 className="modal-title">Event</h4>
             </div>
             <div className="modal-body">
-              <div className="row"> 
+              <div className="row">
                 <TourDescr data={this.props.data} />
-                <div className="col-md-12 col-xs-12"> 
+                <div className="col-md-12 col-xs-12">
                   <GMap defaultRoute={this.props.data.route}/>
-                </div> 
+                </div>
               </div>
             </div>
-            <CommentBox tourId={this.props.data._id} 
-              url="/tours/comments" pollInterval={2000} 
+            <CommentBox tourId={this.props.data._id}
+              url="/tours/comments" pollInterval={2000}
               active={this.state.open}
             />
             <div className="modal-footer">
-              <button type="button" className="btn btn-primary" 
-                data-dismiss="modal">
-                Close
-              </button>
               <button id="reg-btn" type="button"
-                className="btn btn-primary" 
+                className="btn btn-success"
                 onClick={this.handleRegister}>
                 Register
               </button>

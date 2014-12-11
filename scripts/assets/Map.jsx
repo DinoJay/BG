@@ -57,7 +57,7 @@ var GMap  = React.createClass({
     };
 
     var homeMarker = new google.maps.Marker({
-      position : new google.maps.LatLng(this.props.latitude, 
+      position : new google.maps.LatLng(this.props.latitude,
                                         this.props.longitude),
       title    : 'my location!'
     });
@@ -90,7 +90,7 @@ var GMap  = React.createClass({
     var bikeLayer = new google.maps.BicyclingLayer();
     bikeLayer.setMap(this.state.map);
 
-    google.maps.event.addListener(this.state.dirDisplay, 
+    google.maps.event.addListener(this.state.dirDisplay,
                                   'directions_changed', function() {
       this.handleRouteChange(this.state.dirDisplay.getDirections());
       google.maps.event.trigger(this.state.map, 'resize');
@@ -116,8 +116,8 @@ var GMap  = React.createClass({
     // TODO: looks terrible
     /*
      * if (this.props.defaultRoute) return true;
-     * if (this.props.origin && this.props.dest && 
-     *     newProps.origin && newProps.des && 
+     * if (this.props.origin && this.props.dest &&
+     *     newProps.origin && newProps.des &&
      *       this.props.origin === newProps.origin &&
      *                             this.props.dest === newProps.dest) {
      *   return false;
@@ -134,8 +134,8 @@ var GMap  = React.createClass({
     var bounds = new google.maps.LatLngBounds();
     var path = [];
     this.props.defaultRoute.forEach(function(point) {
-      path.push(new google.maps.LatLng(point.k, point.B));
-      bounds.extend(new google.maps.LatLng(point.k, point.B));
+      path.push(new google.maps.LatLng(point.k, point.D));
+      bounds.extend(new google.maps.LatLng(point.k, point.D));
     });
     // modal bug fix
     google.maps.event.trigger(this.state.map, 'resize');
@@ -146,18 +146,20 @@ var GMap  = React.createClass({
 
     path = this.state.polyline.getPath();
     var posB = path.j[path.j.length-1];
-    var BmarkerPos = new google.maps.LatLng(posB.k, posB.B);
-    var AmarkerPos = new google.maps.LatLng(path.j[0].k, path.j[0].B);
+    var BmarkerPos = new google.maps.LatLng(posB.k, posB.D);
+    var AmarkerPos = new google.maps.LatLng(path.j[0].k, path.j[0].D);
 
     this.state.markerA.position = AmarkerPos;
     this.state.markerA.setMap(this.state.map);
 
     this.state.markerB.position = BmarkerPos;
     this.state.markerB.setMap(this.state.map);
+    console.log("MarkerA", AmarkerPos, path.j[0].D);
+    console.log("MarkerB", BmarkerPos, posB);
   },
 
   markUpdate: function() {
-    var pos = new google.maps.LatLng(this.props.latitude, 
+    var pos = new google.maps.LatLng(this.props.latitude,
                                      this.props.longitude);
     this.state.marker.position = pos;
     this.state.marker.setMap(this.state.map);

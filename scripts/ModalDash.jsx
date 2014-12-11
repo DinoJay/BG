@@ -29,8 +29,8 @@ var ModalDash = React.createClass({
     return {
       error: null,
       open: false,
-      latitude: null,
-      longitude: null,
+      changeBtnActive: true,
+      deleteBtnActive: true,
     };
   },
 
@@ -72,7 +72,70 @@ var ModalDash = React.createClass({
                   origin: null, dest: null});
   },
 
+  handleChange: function(e) {
+    e.preventDefault();
+    console.log("handle change", e);
+    var options;
+    superagent.put('/tours/change/'+this.props.data._id)
+    .send(this.getUpdatedData())
+    .end(function(error, res) {
+      options = {
+        position: "left",
+        gap: 20,
+        className: "success",
+        autoHide: false,
+        arrowShow: false,
+      };
+      if (!error) {
+        $("#delete-button").notify("Tour changed!", options);
+        this.props.dataChangeHandler(this.getUpdatedData());
+        //this.setState({route: null});
+      }
+      else {
+        options.className = "error";
+        $("#delete-button").notify("BoOM! An error has occured!",
+                                   options);
+        console.log(error);
+      }
+    }.bind(this));
+  },
+
+  handleDelete: function(e) {
+    e.preventDefault();
+    console.log("handle Delete", e);
+    var options;
+    superagent.del('/tours/delete/'+this.props.data._id)
+    .send(this.getUpdatedData())
+    .end(function(error, res) {
+      if (!error) {
+        options = {
+          position: "left",
+          gap: 20,
+          className: "warn",
+          autoHide: false,
+          arrowShow: false,
+        };
+        $("#delete-button").notify("Tour deleted!", options);
+        this.props.dataDeleteHandler(this.getUpdatedData());
+        this.setState({changeBtnActive: false});
+      }
+      else {
+        options = {position: "right", className: "error"};
+        $("#delete-button").notify("BoOM! An error has occured!",
+                                   options);
+        console.log(error);
+      }
+    }.bind(this));
+  },
+
   render: function() {
+    var changeBtnClass = "btn btn-warning";
+    var deleteBtnClass = "btn btn-primary";
+    if (!this.state.changeBtnActive) {
+      changeBtnClass = changeBtnClass+" disabled";
+      deleteBtnClass = deleteBtnClass+" disabled";
+    }
+
     return (
       <div id={this.props.id} onClick={this.handleClick}
         className="modal" role="dialog" aria-hidden="true">
@@ -113,14 +176,14 @@ var ModalDash = React.createClass({
               <div className="btn-group-inline">
                 <div className="btn-inline">
                   <button id="delete-button" type="submit"
-                    className="btn btn-warning"
+                    className={deleteBtnClass}
                     onClick={this.handleDelete}>
                     Delete
                   </button>
                 </div>
                 <div className="btn-inline">
                   <button id="submit-button" type="submit"
-                    className="btn btn-primary"
+                    className={changeBtnClass}
                     onClick={this.handleChange}>
                     Change
                   </button>

@@ -4,7 +4,8 @@ exports.render = function(req, res) {
 
 exports.list = function(req, res, next){
   // TODO: find not by registered user
-  req.db.tourModel.find({}, function(error, tours){
+  req.db.tourModel.find({user: req.user.username}, function(error, tours){
+    console.log("Req", req);
     console.log("found tours:");
     console.log(tours);
     res.send({

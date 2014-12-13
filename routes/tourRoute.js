@@ -76,7 +76,7 @@ exports.del = function(req, res, next){
 };
 
 exports.register = function(req, res, next){
-  if (!req.body) 
+  if (!req.body)
     return next(new Error('No data provided.'));
 
     console.log("REgister that shit");
@@ -109,7 +109,7 @@ exports.create = function(req, res, next){
     route      : req.body.route,
     user       : req.user.username,
   });
-  if (!req.body) 
+  if (!req.body)
     return next(new Error('No data provided.'));
 
   tour.save(function(error, tour){

@@ -9,9 +9,7 @@ var CommentBox     = require('./assets/CommentBox');
 var superagent     = require('superagent');
 
 var ModalDash = React.createClass({
-  mixins: [React.addons.LinkedStateMixin,
-           require('./assets/DashChangeFormMixin')
-          ],
+  mixins: [ require('./assets/changeFormMixin') ],
 
   Route: null,
 
@@ -27,10 +25,12 @@ var ModalDash = React.createClass({
 
   getInitialState: function() {
     return {
-      error: null,
       open: false,
       changeBtnActive: true,
       deleteBtnActive: true,
+      changed        : false
+      //dest: null,
+      //origin: null
     };
   },
 
@@ -40,12 +40,15 @@ var ModalDash = React.createClass({
     var modalSel = "#"+this.props.id;
     console.log("modalDash Props", this.props);
     console.log("modal selector", modalSel);
-    $(modalSel).on('hidden.bs.modal', function () {
-      this.setState({error: null, open: false});
-    }.bind(this));
 
     $(modalSel).on('shown.bs.modal', function () {
       this.setState({open: true});
+    }.bind(this));
+
+    $(modalSel).on('hidden.bs.modal', function () {
+      this.props.dataChangeHandler(this.getUpdatedData());
+      this.handleChange();
+      this.setState({open: false});
     }.bind(this));
   },
 
@@ -58,24 +61,47 @@ var ModalDash = React.createClass({
     e.stopPropagation();
   },
 
-  shouldComponentUpdate: function(nextProps, nextState) {
-
-    // console.log("this props", this.props, "next props", nextProps);
-    // if (this.state.origin === null) return true;
-    // else return (this.state.origin !== nextState.origin ||
-    //         this.state.dest !== nextState.dest);
-    return true;
+  componentDidUpdate: function(nextProps, nextState) {
+    if (nextProps.data.route !== null &&
+        nextProps.data.route !== this.props.data.route)
+      this.setState({route: this.props.data.route});
   },
 
   handleRouteChange: function(route) {
+    console.log("handleRouteChange");
     this.setState({route: route.routes[0].overview_path,
                   origin: null, dest: null});
+    console.log("This Route", this.state.route);
+  },
+
+  componentWillReceiveProps: function(newProps) {
+
+    var origin = newProps.data.origin;
+    var dest = newProps.data.dest;
+    var descr = newProps.data.descr;
+    var difficulty = newProps.data.difficulty;
+    var end_date = newProps.data.end_date;
+    var name = newProps.data.name;
+    var pers = newProps.data.pers;
+    var start_date = newProps.data.start_date;
+
+    this.refs.origin.getDOMNode().value = origin;
+    this.refs.dest.getDOMNode().value = dest;
+    this.refs.descr.getDOMNode().value = descr;
+    this.refs.difficulty.getDOMNode().value = difficulty;
+    this.refs.end_date.getDOMNode().value = end_date;
+    this.refs.name.getDOMNode().value = name;
+    this.refs.pers.getDOMNode().value = pers;
+    this.refs.start_date.getDOMNode().value = start_date;
+
+    //this.setState({origin: origin, dest: dest});
+
   },
 
   handleChange: function(e) {
-    e.preventDefault();
     console.log("handle change", e);
     var options;
+    var that = this;
     superagent.put('/tours/change/'+this.props.data._id)
     .send(this.getUpdatedData())
     .end(function(error, res) {
@@ -83,13 +109,13 @@ var ModalDash = React.createClass({
         position: "left",
         gap: 20,
         className: "success",
-        autoHide: false,
         arrowShow: false,
       };
       if (!error) {
         $("#delete-button").notify("Tour changed!", options);
-        this.props.dataChangeHandler(this.getUpdatedData());
-        //this.setState({route: null});
+        console.log("STATE", this.state);
+        console.log("handleChange", this.getUpdatedData());
+        this.setState({changed: true});
       }
       else {
         options.className = "error";
@@ -117,7 +143,7 @@ var ModalDash = React.createClass({
         };
         $("#delete-button").notify("Tour deleted!", options);
         this.props.dataDeleteHandler(this.getUpdatedData());
-        this.setState({changeBtnActive: false});
+        this.setState({deleteBtnActive: false});
       }
       else {
         options = {position: "right", className: "error"};
@@ -129,12 +155,11 @@ var ModalDash = React.createClass({
   },
 
   render: function() {
-    var changeBtnClass = "btn btn-warning";
-    var deleteBtnClass = "btn btn-primary";
-    if (!this.state.changeBtnActive) {
-      changeBtnClass = changeBtnClass+" disabled";
+    var deleteBtnClass = "btn btn-danger";
+    if (!this.state.deleteBtnClass) {
       deleteBtnClass = deleteBtnClass+" disabled";
     }
+    console.log("tell me if you render!");
 
     return (
       <div id={this.props.id} onClick={this.handleClick}
@@ -144,7 +169,7 @@ var ModalDash = React.createClass({
             <div className="modal-header">
               <button type="button" className="close"
                 data-dismiss="modal" aria-hidden="true"
-                onClick={this.onClose}>×</button>
+                onClick={this.passedDataChangeHandler}>×</button>
               <h4 className="modal-title">
                 Tour: {this.props.data.name}
               </h4>
@@ -173,21 +198,12 @@ var ModalDash = React.createClass({
               </div>
             </div>
             <div className="modal-footer">
-              <div className="btn-group-inline">
-                <div className="btn-inline">
-                  <button id="delete-button" type="submit"
-                    className={deleteBtnClass}
-                    onClick={this.handleDelete}>
-                    Delete
-                  </button>
-                </div>
-                <div className="btn-inline">
-                  <button id="submit-button" type="submit"
-                    className={changeBtnClass}
-                    onClick={this.handleChange}>
-                    Change
-                  </button>
-                </div>
+              <div className="btn-inline">
+                <button id="delete-button" type="submit"
+                  className={deleteBtnClass}
+                  onClick={this.handleDelete}>
+                  Delete
+                </button>
               </div>
             </div>
           </div>

@@ -36,7 +36,7 @@ var GMap  = React.createClass({
     return {
       dirService : null,
       map        : null,
-      marker     : null,
+      homeMarker     : null,
       dirDisplay : null
     };
   },
@@ -80,7 +80,7 @@ var GMap  = React.createClass({
     this.setState({
       dirService      : new google.maps.DirectionsService(),
       map             : new google.maps.Map(this.getDOMNode(), mapOpts),
-      marker          : homeMarker,
+      homeMarker      : homeMarker,
       dirDisplay      : new google.maps.DirectionsRenderer(displayOpts),
       markerA         : markerA,
       markerB         : markerB,
@@ -99,10 +99,10 @@ var GMap  = React.createClass({
 
   // update markers if needed
   componentDidUpdate: function() {
-    if (this.props.latitude && this.props.longitude) this.markUpdate();
 
     if (this.props.origin && this.props.dest){
       this.routeUpdate();
+      //if (this.props.latitude && this.props.longitude) this.markUpdate();
     }
     else {
       if (this.props.defaultRoute &&
@@ -110,6 +110,8 @@ var GMap  = React.createClass({
           this.defaultRouteUpdate();
       }
     }
+    google.maps.event.trigger(this.state.map, 'resize');
+    //this.state.map.setCenter(this.state.markerA.position);
   },
 
   shouldComponentUpdate: function(newProps) {
@@ -130,6 +132,7 @@ var GMap  = React.createClass({
     this.state.polyline.setMap(null);
     this.state.markerA.setMap(null);
     this.state.markerB.setMap(null);
+    //this.state.homeMarker.setMap(null);
 
     var bounds = new google.maps.LatLngBounds();
     var path = [];
@@ -154,15 +157,15 @@ var GMap  = React.createClass({
 
     this.state.markerB.position = BmarkerPos;
     this.state.markerB.setMap(this.state.map);
-    console.log("MarkerA", AmarkerPos, path.j[0].D);
-    console.log("MarkerB", BmarkerPos, posB);
+    //console.log("MarkerA", AmarkerPos, path.j[0].D);
+    //console.log("MarkerB", BmarkerPos, posB);
   },
 
   markUpdate: function() {
     var pos = new google.maps.LatLng(this.props.latitude,
                                      this.props.longitude);
-    this.state.marker.position = pos;
-    this.state.marker.setMap(this.state.map);
+    this.state.homeMarker.position = pos;
+    this.state.homeMarker.setMap(this.state.map);
     this.state.map.setCenter(pos);
     this.state.map.setZoom(8);
   },
@@ -196,7 +199,7 @@ var GMap  = React.createClass({
         //TODO put to props
         this.state.dirDisplay.setPanel(document
                                        .getElementById('dir-panel'));
-      this.state.marker.setMap(null);
+      this.state.homeMarker.setMap(null);
       if (document.getElementById("dir-panel"))
         document.getElementById("dir-panel").className = "dir-panel";
       }

@@ -12,16 +12,12 @@ var mountNode           = document.getElementById('react-main-mount');
 
 var MapRouter = React.createClass({
 
-  mixins: [require('./assets/locMixin')],
+  mixins: [require('./assets/changeFormMixin')],
 
   Route : null,
 
   getInitialState: function(){
     return {
-      origin            : "",
-      destination       : "",
-      latitude          : null,
-      longitude         : null,
       route        : null,
       db_tour_save_msg : "",
     };
@@ -29,6 +25,16 @@ var MapRouter = React.createClass({
 
   getDefaultProps: function(){
     return({
+      data: {
+        origin : null,
+        dest : null,
+        descr : null,
+        difficulty : null,
+        end_date : null,
+        name : null,
+        pers : null,
+        start_date : null,
+      },
       gmaps_api_key : '',
       gmaps_sensor  : false
     });
@@ -41,13 +47,13 @@ var MapRouter = React.createClass({
     var dest_compl = new google.maps
                               .places
                               .Autocomplete(this.refs.dest.getDOMNode());
-    google.maps.event.addListener(dest_compl, 'place_changed', 
+    google.maps.event.addListener(dest_compl, 'place_changed',
                                   function() {
                                     console.log("TRIGGER");
                                     this.handleRouteChange();
                                   }.bind(this)
                                  );
-    google.maps.event.addListener(origin_compl, 'place_changed', 
+    google.maps.event.addListener(origin_compl, 'place_changed',
                                   function() {
                                     this.handleRouteChange();
                                   }.bind(this)
@@ -80,7 +86,7 @@ var MapRouter = React.createClass({
         console.log("RESPONSE", res);
         this.setState({db_tour_save_msg: "success"});
       }.bind(this));
-    } 
+    }
     else {
       this.setState({db_tour_save_msg: "fail"});
     }
@@ -108,7 +114,7 @@ var MapRouter = React.createClass({
       notifier = (
         <div className="form-group alert alert-success" role="alert">
           <span className="glyphicon glyphicon-exclamation-sign"
-            aria-hidden="true" 
+            aria-hidden="true"
           />
           <span className="sr-only">Error:</span>
             {this.state.db_tour_save_msg}
@@ -135,83 +141,18 @@ var MapRouter = React.createClass({
           Choose your date, select a route and wait TODO
         </p>
         <div className="col-md-4 sidebar">
-          <form onSubmit={this.handleSubmit} 
-            className="bs-example bs-example-form">
-              <div className="form-group">
-                <label>Event Name</label>
-                <input ref="name" type="text" 
-                  className="form-control" 
-                  placeholder="Name of your Biking Event"
-                />
-              </div>
-              <div className="form-group">
-                <label>Origin </label>
-                <div className="input-group">
-                  <input ref="origin" type="text" 
-                    className="form-control" 
-                  />      
-                  <span className="input-group-btn">
-                    <button className="btn btn-default"
-                      onClick={this.handleLoc}>
-                      <span className="glyphicon glyphicon-home"/>
-                    </button>
-                  </span>
-                </div>     
-              </div>     
-              <div className="form-group">
-                <label>Dest</label>
-                <input ref="dest" type="text" 
-                  className="form-control" />
-              </div>
-              <div className="form-group">
-                <label>Start Date</label>
-                <input ref="start_date" type="date"
-                  className="form-control"
-                  placeholder="Start Date of your Bike Tour"
-                />
-              </div>
-              <div className="form-group">
-                <label>End Date</label>
-                <input ref="end_date" type="date"
-                  className="form-control"
-                  placeholder="End Date of your Bike Tour"
-                />
-              </div>
-              <div className="form-group">
-                <label>Persons</label>
-                <input ref="pers" type="number"
-                  className="form-control"
-                  placeholder="limit of persons who can join you"
-                />
-              </div>
-              <div className="form-group">
-                <label>Difficulty</label>
-                <input ref="difficulty" type="number"
-                  className="form-control"
-                  placeholder="Denote here the level of Difficulty"
-                />
-              </div>
-              <div className="form-group">
-                <label>Description</label>
-                <textarea ref="descr" type="text" 
-                  className="form-control" 
-                  placeholder="Add a description to your event"
-                />
-              </div>
-              <div className="form-group">
-                <button type="submit" className="btn btn-default">
-                  Submit
-                </button>
-              </div>
-              <div className="form-group">
-                {notifier}
-              </div>
-            </form>
+          {this.form()}
+          <div className="form-group">
+            <button onClick={this.handleSubmit} type="submit"
+              className="btn btn-default">
+              Submit
+            </button>
+          </div>
         </div>
           <div className="col-md-8">
-            <GMap className="google-map" 
+            <GMap className="google-map"
                origin={this.state.origin}
-               dest={this.state.destination} 
+               dest={this.state.destination}
                longitude={this.state.longitude}
                latitude={this.state.latitude}
                callback={this.getDirDisplay}

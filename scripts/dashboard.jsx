@@ -60,6 +60,7 @@ var ToursCreated = React.createClass({
   tourChangeHandler: function(updatedTour) {
     var curData = this.state.data;
     var index = curData.indexOfObj("_id", updatedTour._id);
+    console.log("tourChangeHandler", updatedTour);
 
     curData[index] = updatedTour;
     this.setState({data: curData});
@@ -75,9 +76,9 @@ var ToursCreated = React.createClass({
   render: function(){
     return(
       <div>
-        <ModalDash id={this.props.modalId} 
+        <ModalDash id={this.props.modalId}
           data={this.state.tourRecord}
-          user={this.state.user} 
+          user={this.state.user}
           dataChangeHandler={this.tourChangeHandler}
           dataDeleteHandler={this.tourDeleteHandler}
         />
@@ -86,18 +87,18 @@ var ToursCreated = React.createClass({
           columnMetadata={columnMetaData}
           customFormatClassName="row" useCustomFormat="true"
           tableClassName="table"
-          customFormat={Cell} 
-          GMap={this.onCellClick}
+          customFormat={Cell}
           noDataMessage={"No Tours found created by you."}
-          callback={this.onCellClick}
-          cellStyle={{"min-height": 170}}
-          modalId="modal1"
+          myRowData={{
+            callback: this.onCellClick,
+            cellStyle: {"min-height": 170},
+            modalId: this.props.modalId
+          }}
         />
       </div>
     );
   }
 });
-
 
 var ToursRegistered = React.createClass({
   mixins: [dataMethodMixin],
@@ -139,21 +140,23 @@ var ToursRegistered = React.createClass({
   render: function(){
     return(
       <div>
-        <ModalTours id={this.props.modalId} 
+        <ModalTours id={this.props.modalId}
           data={this.state.tourRecord}
-          user={this.state.user} 
+          user={this.state.user}
         />
         <Griddle
           getExternalResults={this.dataMethodHelper}
           columnMetadata={columnMetaData}
           customFormatClassName="row" useCustomFormat="true"
           tableClassName="table"
-          customFormat={Cell} 
+          customFormat={Cell}
           GMap={this.onCellClick}
           noDataMessage={"No Tours found created by you."}
-          callback={this.onCellClick}
-          cellStyle={{"min-height": 170}}
-          modalId="modal2"
+          myRowData={{
+            callback: this.onCellClick,
+            cellStyle: {"min-height": 170},
+            modalId: this.props.modalId
+          }}
         />
       </div>
     );

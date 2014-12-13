@@ -20,6 +20,7 @@ var ModalTours = React.createClass({
       id: "modal"
     });
   },
+
   getInitialState: function() {
     return {
       error: null,
@@ -54,7 +55,6 @@ var ModalTours = React.createClass({
       position: "left",
       gap: 20,
       className: "success",
-      autoHide: false,
       arrowShow: false,
     };
     superagent.put('/tours/register')
@@ -64,12 +64,12 @@ var ModalTours = React.createClass({
         options.className = "error";
         $("#reg-btn").notify("BoOM! An error has occured!",
                              options);
+        console.log(error);
       }
       else {
         console.log("Response", res);
         if (res.text === "success"){
           $("#reg-btn").notify("Tour changed!", options);
-          this.props.dataChangeHandler(this.getUpdatedData());
         }
         else {
           options.className = "warn";

@@ -16,7 +16,7 @@ var ModalTrigger = React.createClass({
     $('#'+this.props.iD).modal();
   },
   render: function() {
-    console.log("ModalTrigger ID", this.props.iD);
+    //console.log("ModalTrigger ID", this.props.iD);
     return (
       <div onClick={this.handleClick}>
         {this.props.children}

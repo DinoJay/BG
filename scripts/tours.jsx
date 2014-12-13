@@ -19,7 +19,7 @@ var TourPage = React.createClass({
   mixins: [dataMethodMixin],
 
   getDefaultProps: function() {
-    return { 
+    return {
       singleTourData: null,
       modalId: "modalTours"
     };
@@ -52,11 +52,11 @@ var TourPage = React.createClass({
         <div className="col-md-12">
           <h1>Find your very own tour and enjoy!</h1>
           <p className="lead">
-            Here you can explore all tours created by other users. Feel 
+            Here you can explore all tours created by other users. Feel
             free to register if you like to.
           </p>
-          <ModalTours id={this.props.modalId} 
-            data={this.state.singleTourData}  
+          <ModalTours id={this.props.modalId}
+            data={this.state.singleTourData}
           />
         <Griddle
           getExternalResults={this.dataMethodHelper}
@@ -66,8 +66,13 @@ var TourPage = React.createClass({
           customFormat={Cell} showSettings="true"
           noDataMessage={"Please wait. Data is loading"}
           callback={this.onCellClick}
-          cellStyle={{"min-height": "100px"}} 
+          cellStyle={{"min-height": "100px"}}
           modalId={this.props.modalId}
+          myRowData={{
+            callback: this.onCellClick,
+            cellStyle: {"min-height": 170},
+            modalId: this.props.modalId
+          }}
         />
       </div>
     </div>

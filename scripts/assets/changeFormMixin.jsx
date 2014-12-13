@@ -10,34 +10,16 @@ var Form = {
 
   getInitialState: function() {
     return{
-      dest      : null,
-      origin    : null,
-      latitude  : null,
-      longitude : null,
+      dest       : null,
+      origin     : null,
+      latitude   : null,
+      longitude  : null,
+      descr      : null,
+      difficulty : null,
+      end_date   : null,
+      name       : null,
+      pers       : null,
     };
-  },
-
-  componentWillReceiveProps: function(newProps) {
-    var origin = newProps.data.origin;
-    var dest = newProps.data.dest;
-    var descr = newProps.data.descr;
-    var difficulty = newProps.data.difficulty;
-    var end_date = newProps.data.end_date;
-    var name = newProps.data.name;
-    var pers = newProps.data.pers;
-    var start_date = newProps.data.start_date;
-
-    this.refs.origin.getDOMNode().defaultValue = origin;
-    this.refs.dest.getDOMNode().defaultValue = dest;
-    this.refs.descr.getDOMNode().defaultValue = descr;
-    this.refs.difficulty.getDOMNode().defaultValue = difficulty;
-    this.refs.end_date.getDOMNode().defaultValue = end_date;
-    this.refs.name.getDOMNode().defaultValue = name;
-    this.refs.pers.getDOMNode().defaultValue = pers;
-    this.refs.start_date.getDOMNode().defaultValue = start_date;
-
-    this.setState({route: newProps.data.route});
-    console.log("new PROPS", newProps.data);
   },
 
   componentDidMount: function() {
@@ -71,16 +53,29 @@ var Form = {
     navigator.geolocation.getCurrentPosition(function(position) {
       var latitude = position.coords.latitude;
       var longitude = position.coords.longitude;
-      var lat_long_str = '('+longitude.toString()+
-                         ', '+ latitude.toString() +')';
-      this.refs.origin.getDOMNode().value = lat_long_str;
-      var dest   = this.refs.dest.getDOMNode().value;
-      var origin = this.refs.origin.getDOMNode().value;
-      this.setState({latitude : latitude,
-                    longitude : longitude,
-                    origin: origin,
-                    dest : dest
-                    });
+      var latlng = new google.maps.LatLng(latitude, longitude);
+
+      var geocoder = new google.maps.Geocoder();
+      console.log("Geocoder", geocoder);
+      geocoder.geocode( { 'latLng': latlng}, function(results, status) {
+        if (status == google.maps.GeocoderStatus.OK) {
+          console.log("Geocoder", results[0]);
+          this.refs.origin.getDOMNode().value = (results[0]
+                                                .formatted_address);
+          var dest   = this.refs.dest.getDOMNode().value;
+          var origin = this.refs.origin.getDOMNode().value;
+
+          this.setState({latitude : latitude,
+                        longitude : longitude,
+                        origin: origin,
+                        dest : dest
+                        });
+        } else {
+          alert("Geocode was not successful for the following reason: "+
+                status);
+        }
+      }.bind(this));
+
     // TODO: Callback
     }.bind(this));
   },
@@ -88,17 +83,17 @@ var Form = {
   getUpdatedData: function() {
     return ({
       _id        : this.props.data._id,
-      descr      : this.refs.descr.getDOMNode().value,
+      descr      : this.refs.dest.getDOMNode().value,
       dest       : this.refs.dest.getDOMNode().value,
       difficulty : this.refs.difficulty.getDOMNode().value,
       end_date   : this.refs.end_date.getDOMNode().value,
-      name       : this.refs.name.getDOMNode().value,
-      pers       : this.refs.pers.getDOMNode().value,
-      reg_users  : this.props.data.reg_users,
-      origin     : this.refs.origin.getDOMNode().value,
-      start_date : this.refs.start_date.getDOMNode().value,
-      user       : this.props.data.user,
-      route      : this.state.route
+      name       :  this.refs.name.getDOMNode().value,
+      pers       :  this.refs.pers.getDOMNode().value,
+      reg_users  :  this.props.data.reg_users,
+      origin     :  this.refs.origin.getDOMNode().value,
+      start_date :  this.refs.start_date.getDOMNode().value,
+      user       :  this.refs.difficulty.getDOMNode().value,
+      route      :  this.state.route
     });
   },
 

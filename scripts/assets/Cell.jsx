@@ -12,22 +12,23 @@ var Cell = React.createClass({
   getDefaultProps: function(){
     return {
       data   : {},
-      map_id : "dir-panel",
-      cellStyle  : {"min-height": "100px"},
-      callback: null,
-      modalId: "modal"
+      myRowData: {},
+      //cellStyle  : {"min-height": "100px"},
+      //callback: null,
+      //modalId: "modal"
     };
   },
 
   handleClick: function(){
-    this.props.callback(this.props.data);
+    this.props.myRowData.callback(this.props.data);
   },
 
   render: function(){
+    //console.log("Cell", this.props);
     return(
-      <ModalTrigger iD={this.props.modalId}>
+      <ModalTrigger iD={this.props.myRowData.modalId}>
         <div className="col-md-4" onClick={this.handleClick}>
-          <div style={this.props.cellStyle} 
+          <div style={this.props.myRowData.cellStyle}
             className="cell panel panel-default custom-component">
             <div className="row">
               <div className="col-md-12">

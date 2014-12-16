@@ -28,7 +28,8 @@ var ModalTours = React.createClass({
     return {
       error: null,
       open: false,
-      reg_users: []
+      reg_users: [],
+      unregistered: false
     };
   },
 
@@ -37,7 +38,7 @@ var ModalTours = React.createClass({
                                show: false});
     var modalSel = "#"+this.props.id;
     $(modalSel).on('hidden.bs.modal', function () {
-      this.setState({error: null, open: false});
+      this.setState({open: false, unregistered: false});
     }.bind(this));
 
     $(modalSel).on('shown.bs.modal', function () {
@@ -54,14 +55,26 @@ var ModalTours = React.createClass({
       e.stopPropagation();
   },
 
+  notifyUnRegister: function() {
+    options = {
+      position: "left",
+      gap: 20,
+      className: "warn",
+      arrowShow: false,
+    };
+
+    this.setState({unregistered: true});
+    $("#reg-btn").notify("You are unregistered!", options);
+  },
+
   handleRegister: function() {
-    console.log(this.props.data.user);
     options = {
       position: "left",
       gap: 20,
       className: "success",
       arrowShow: false,
     };
+
     superagent.put('/tours/register')
     .send(this.props.data)
     .end(function(error, res){
@@ -74,13 +87,14 @@ var ModalTours = React.createClass({
       else {
         console.log("Response", res);
         // TODO: delete true
-        if (res.text === "success" || true){
+        if (res.text === "success"){
           $("#reg-btn").notify("You are registered!", options);
           var reg_users = this.state.reg_users;
           reg_users.push(this.props.user);
           this.setState({
             reg_users: reg_users
           });
+          console.log("REG USERS", this.state.reg_users);
         }
         else {
           options.className = "warn";
@@ -93,9 +107,16 @@ var ModalTours = React.createClass({
 
   render: function() {
     var regBtnClass = "btn btn-success";
-    if (this.state.reg_users !== undefined)
-      if (this.state.reg_users.indexOf(this.props.data.user) !== -1)
+    if (this.state.reg_users !== undefined) {
+      if (this.state.reg_users.indexOf(this.props.user) !== -1) {
+        console.log("Are you found", this.props.user);
         regBtnClass += " disabled";
+      }
+      else{
+        if(this.state.unregistered)
+          regBtnClass = "btn btn-success";
+      }
+    }
 
     var regBtn = null;
     if (!this.props.fromDashboard) {

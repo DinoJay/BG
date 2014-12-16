@@ -114,7 +114,7 @@ var tourDescr = {
               regUsers={[this.props.user]}
               data={this.state.reg_users}
               tourId={this.props.data._id}
-              dataChangeHandler={this.props.dataChangeHandler}
+              dataChangeHandler={this.notifyRegister}
             />
           </div>
         </div>

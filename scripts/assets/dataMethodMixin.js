@@ -2,6 +2,15 @@
  * @jsx React.DOM
  * @flow
  */
+function search(cell, filterString) {
+  filterString = filterString.toLowerCase();
+
+return (cell.origin.toLowerCase().indexOf(filterString) !== -1 ||
+            cell.dest.toLowerCase().indexOf(filterString) !== -1 ||
+            cell.name.toLowerCase().indexOf(filterString) !== -1  );
+
+}
+
 var dataMethodMixin = {
   // TODO: fix filtering
   dataMethodHelper: function(filterString, sortColumn,
@@ -9,15 +18,13 @@ var dataMethodMixin = {
     var initialIndex = page * pageSize;
     var endIndex = initialIndex + pageSize;
     var parRes;
-    if (filterString !== "") {
+    if (filterString !== "nothing") {
       parRes = [];
       this.state.data.forEach(function(cell){
-        if (cell.origin.indexOf(filterString) !== -1 ||
-            cell.dest.indexOf(filterString) !== -1 ||
-            cell.name.indexOf(filterString) !== -1  )
+        if (search(cell, filterString))
           parRes.push(cell);
       });
-      if (parRes.length === 0) parRes = this.state.data;
+      //if (parRes.length === 0) parRes = this.state.data;
     }
     else parRes = this.state.data;
 

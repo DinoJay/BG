@@ -5,11 +5,12 @@
 var React          = require('react');
 var GMap           = require('./assets/Map');
 var CommentBox     = require('./assets/CommentBox');
+var UserTable     = require('./assets/UserTable');
 
 var superagent     = require('superagent');
 
 var ModalDash = React.createClass({
-  mixins: [ require('./assets/changeFormMixin') ],
+  mixins: [ require('./assets/dashChangeFormMixin') ],
 
   Route: null,
 
@@ -26,11 +27,8 @@ var ModalDash = React.createClass({
   getInitialState: function() {
     return {
       open: false,
-      changeBtnActive: true,
-      deleteBtnActive: true,
+      deleted: false,
       changed        : false
-      //dest: null,
-      //origin: null
     };
   },
 
@@ -46,9 +44,11 @@ var ModalDash = React.createClass({
     }.bind(this));
 
     $(modalSel).on('hidden.bs.modal', function () {
-      this.props.dataChangeHandler(this.getUpdatedData());
-      this.handleChange();
-      this.setState({open: false});
+      if (!this.state.deleted) {
+        this.handleChange();
+        this.props.dataChangeHandler(this.getUpdatedData());
+      }
+      this.setState({open: false, deleted: false});
     }.bind(this));
   },
 
@@ -93,13 +93,9 @@ var ModalDash = React.createClass({
     this.refs.name.getDOMNode().value = name;
     this.refs.pers.getDOMNode().value = pers;
     this.refs.start_date.getDOMNode().value = start_date;
-
-    //this.setState({origin: origin, dest: dest});
-
   },
 
-  handleChange: function(e) {
-    console.log("handle change", e);
+  handleChange: function() {
     var options;
     var that = this;
     superagent.put('/tours/change/'+this.props.data._id)
@@ -115,7 +111,6 @@ var ModalDash = React.createClass({
         $("#delete-button").notify("Tour changed!", options);
         console.log("STATE", this.state);
         console.log("handleChange", this.getUpdatedData());
-        this.setState({changed: true});
       }
       else {
         options.className = "error";
@@ -141,9 +136,11 @@ var ModalDash = React.createClass({
           autoHide: false,
           arrowShow: false,
         };
-        $("#delete-button").notify("Tour deleted!", options);
+        var modalSel = "#"+this.props.id;
         this.props.dataDeleteHandler(this.getUpdatedData());
-        this.setState({deleteBtnActive: false});
+        this.setState({deleted: true});
+
+        $(modalSel).modal('toggle');
       }
       else {
         options = {position: "right", className: "error"};
@@ -156,10 +153,6 @@ var ModalDash = React.createClass({
 
   render: function() {
     var deleteBtnClass = "btn btn-danger";
-    if (!this.state.deleteBtnClass) {
-      deleteBtnClass = deleteBtnClass+" disabled";
-    }
-    console.log("tell me if you render!");
 
     return (
       <div id={this.props.id} onClick={this.handleClick}
@@ -190,10 +183,27 @@ var ModalDash = React.createClass({
                   />
                 </div>
                 <div className="col-md-8">
-                  <CommentBox tourId={this.props.data._id}
-                    url="/tours/comments"
-                    active={this.state.open}
-                  />
+                  <div style={{"margin-top": "15px"}}>
+                    <div className="detailBox">
+                      <div className="detailBox">
+                        <label>Registered Users</label>
+                        <UserTable className="actionBox"
+                          tourId={this.props.data._id}
+                          regUsers={[this.props.user]}
+                          data={this.props.data.reg_users}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="row">
+                  <div className="col-md-12 col-xs-12">
+                    <CommentBox tourId={this.props.data._id}
+                      url="/tours/comments"
+                      active={this.state.open}
+                      user={this.props.user}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -201,7 +211,8 @@ var ModalDash = React.createClass({
               <div className="btn-inline">
                 <button id="delete-button" type="submit"
                   className={deleteBtnClass}
-                  onClick={this.handleDelete}>
+                  onClick={this.handleDelete}
+                  form="changeForm">
                   Delete
                 </button>
               </div>

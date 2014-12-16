@@ -7,24 +7,28 @@ var React        = require('react');
 var GMap         = require('./assets/Map');
 var CommentBox   = require('./assets/CommentBox');
 var ModalTrigger = require('./assets/ModalTrigger');
-var TourDescr    = require('./assets/TourDescr');
 
 var superagent   = require('superagent');
 
+
 var ModalTours = React.createClass({
+  mixins: [require('./assets/tourDescr')],
 
   getDefaultProps: function() {
     return({
-      data: {},
-      user: null,
-      id: "modal"
+      data              : [],
+      user              : null,
+      id                : "modal",
+      dataChangeHandler : null,
+      fromDashboard     : false
     });
   },
 
   getInitialState: function() {
     return {
       error: null,
-      open: false
+      open: false,
+      reg_users: []
     };
   },
 
@@ -51,6 +55,7 @@ var ModalTours = React.createClass({
   },
 
   handleRegister: function() {
+    console.log(this.props.data.user);
     options = {
       position: "left",
       gap: 20,
@@ -68,19 +73,40 @@ var ModalTours = React.createClass({
       }
       else {
         console.log("Response", res);
-        if (res.text === "success"){
-          $("#reg-btn").notify("Tour changed!", options);
+        // TODO: delete true
+        if (res.text === "success" || true){
+          $("#reg-btn").notify("You are registered!", options);
+          var reg_users = this.state.reg_users;
+          reg_users.push(this.props.user);
+          this.setState({
+            reg_users: reg_users
+          });
         }
         else {
           options.className = "warn";
           $("#reg-btn").notify("BoOM! You are already registered "+
-                                     "for this tour!", options);
+                               "for this tour!", options);
         }
       }
     }.bind(this));
   },
 
   render: function() {
+    var regBtnClass = "btn btn-success";
+    if (this.state.reg_users !== undefined)
+      if (this.state.reg_users.indexOf(this.props.data.user) !== -1)
+        regBtnClass += " disabled";
+
+    var regBtn = null;
+    if (!this.props.fromDashboard) {
+      regBtn = (
+        <button id="reg-btn" type="submit"
+          className={regBtnClass}
+          onClick={this.handleRegister}>
+          Register
+        </button>
+      );
+    }
     return (
       <div id={this.props.id} onClick={this.handleClick}
         className="modal" role="dialog" aria-hidden="true">
@@ -90,26 +116,25 @@ var ModalTours = React.createClass({
               <button type="button" className="close"
                 data-dismiss="modal" aria-hidden="true"
                 onClick={this.onClose}>×</button>
-              <h4 className="modal-title">Event</h4>
+              <h4 className="modal-title">
+                Tour: {this.props.data.name}
+              </h4>
             </div>
             <div className="modal-body">
-              <div className="row">
-                <TourDescr data={this.props.data} />
-                <div className="col-md-12 col-xs-12">
-                  <GMap defaultRoute={this.props.data.route}/>
+                {this.descr()}
+                <div className="row">
+                  <div className="col-md-12 col-xs-12">
+                    <GMap defaultRoute={this.props.data.route}/>
+                  </div>
                 </div>
-              </div>
             </div>
             <CommentBox tourId={this.props.data._id}
               url="/tours/comments" pollInterval={2000}
               active={this.state.open}
+              user={this.props.user}
             />
             <div className="modal-footer">
-              <button id="reg-btn" type="button"
-                className="btn btn-success"
-                onClick={this.handleRegister}>
-                Register
-              </button>
+              {regBtn}
             </div>
           </div>
         </div>

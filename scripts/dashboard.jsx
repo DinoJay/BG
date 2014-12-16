@@ -137,12 +137,27 @@ var ToursRegistered = React.createClass({
     this.setState({tourRecord: tourRecord});
   },
 
+  regUsersChangeHandler: function(tourId) {
+    console.log("User to delete tour!", tourId);
+    //this.setState({data: newData});
+    var curData = this.state.data;
+    var index = curData.indexOfObj("_id", tourId);
+    if (index === -1) {
+      console.log("error: tour not found!", index);
+      return;
+    }
+    curData.splice(index, 1);
+    this.setState({data: curData});
+    console.log("tour removed", tourId);
+  },
+
   render: function(){
     return(
       <div>
         <ModalTours id={this.props.modalId}
           data={this.state.tourRecord}
           user={this.state.user}
+          dataChangeHandler={this.regUsersChangeHandler}
         />
         <Griddle
           getExternalResults={this.dataMethodHelper}

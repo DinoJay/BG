@@ -2,20 +2,30 @@
 
 var React = require('react');
 var superagent = require('superagent');
+var CryptoJS = require("crypto-js");
 
 var Comment = React.createClass({
 
+  getDefaultProps: function() {
+    return{
+      user: null
+    };
+  },
+
   render: function() {
     var rawText= this.props.children.toString();
+    var hash = CryptoJS.MD5(this.props.user);
+    var gravatarLink = 'http://www.gravatar.com/avatar/'+hash;
+
     return (
       <li>
         <div className="commenterImage">
-          <img src="http://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50" />
+          <img src={gravatarLink} />
         </div>
         <div className="commentText">
           <p className=""
             dangerouslySetInnerHTML={{__html: rawText}} />
-          <span className="date sub-text">on March 5th, 2014</span>
+          <span className="date sub-text">{this.props.user}</span>
         </div>
       </li>
     );
@@ -27,24 +37,25 @@ var CommentBox = React.createClass({
   getDefaultProps: function() {
     return {
       active: false,
-      tourId: null
+      tourId: null,
+      user: null
     };
   },
 
   getInitialState: function() {
     return {
       data: [],
-      polling: false
     };
   },
 
   loadCommentsFromServer: function() {
     superagent.get("/tours/comments/"+this.props.tourId, function(res) {
       this.setState({data: res.body.comments});
+      // TODO:
       if (res.body.comments.length >= 3) {
         var backdropHeightExt = (parseInt($('.modal-backdrop')[0].style
                                           .height)+152)+'px';
-        $('.modal-backdrop').css({ 
+        $('.modal-backdrop').css({
                                  'height':backdropHeightExt,
                                   });
       }
@@ -69,7 +80,7 @@ var CommentBox = React.createClass({
       this.loadCommentsFromServer();
     }
     else {
-      if (prevProps.active && !this.props.active) 
+      if (prevProps.active && !this.props.active)
         this.setState({data: []});
     }
   },
@@ -82,11 +93,11 @@ var CommentBox = React.createClass({
           <div className="CommentBox">
             <p className="taskDescription">
               Add your comment here!
-            </p> 
+            </p>
           </div>
         </div>
         <div className="actionBox">
-          <CommentList data={this.state.data} />
+          <CommentList user={this.props.user} data={this.state.data} />
           <CommentForm onCommentSubmit={this.handleCommentSubmit} />
         </div>
       </div>
@@ -95,12 +106,19 @@ var CommentBox = React.createClass({
 });
 
 var CommentList = React.createClass({
+
+  getDefaultProps: function() {
+    return{
+      user: null
+    };
+  },
+
   render: function() {
     var commentNodes = this.props.data.map(function (comment, index) {
       return (
-        <Comment key={index}>{comment.text}</Comment>
+        <Comment user={this.props.user}>{comment.text}</Comment>
       );
-    });
+    }.bind(this));
     return <ul className="commentList">{commentNodes}</ul>;
   }
 });
@@ -120,11 +138,11 @@ var CommentForm = React.createClass({
     return (
       <form className="form-inline" role="form">
         <div className="form-group">
-          <input className="form-control" type="text" 
+          <input className="form-control" type="text"
             placeholder="Say something..." ref="text" />
         </div>
         <div className="form-group">
-          <button className="btn btn-default" 
+          <button className="btn btn-default"
             onClick={this.handleSubmit}>
             Add
           </button>

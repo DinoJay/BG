@@ -19,7 +19,7 @@ var MapRouter = React.createClass({
   getInitialState: function(){
     return {
       route        : null,
-      db_tour_save_msg : "",
+      savedDb : false,
     };
   },
 
@@ -58,14 +58,20 @@ var MapRouter = React.createClass({
                                     this.handleRouteChange();
                                   }.bind(this)
                                  );
+    function manualValidate(ev) {
+      ev.target.checkValidity();
+      return false;
+    }
+    $("#changeForm").bind("submit", manualValidate);
   },
 
   handleSubmit: function(e) {
-    e.preventDefault();
+    //e.preventDefault();
     var origin = this.refs.origin.getDOMNode().value ;
     var destination = this.refs.dest.getDOMNode().value ;
-    console.log("route");
-    console.log(this.state.route);
+    // if route is not set abort submit
+
+    if (this.Route === null) return;
 
     if (!this.state.saved_event){
       superagent.put('/route/create')
@@ -82,14 +88,24 @@ var MapRouter = React.createClass({
       })
       .end(function(error, res){
         if (error) console.log(error);
+
         console.log("Save in DB");
         console.log("RESPONSE", res);
-        this.setState({db_tour_save_msg: "success"});
+        var options = {
+          position: "right",
+          gap: 20,
+          className: "success",
+          arrowShow: false,
+        };
+        $("#submitBtn").notify("You created a tour!", options);
+        this.setState({savedDb: true});
+
       }.bind(this));
     }
     else {
-      this.setState({db_tour_save_msg: "fail"});
+      this.setState({sb_tour_save_msg: "fail"});
     }
+    return false;
   },
 
   handleRouteChange: function(e) {
@@ -97,10 +113,10 @@ var MapRouter = React.createClass({
     var origin      = this.refs.origin.getDOMNode().value;
     var destination = this.refs.dest.getDOMNode().value;
     console.log(origin);
-    this.setState({db_tour_save_msg : "",
-                  origin             : origin,
-                  destination        : destination,
-                  });
+    this.setState({
+      origin      : origin,
+      destination : destination,
+    });
   },
 
   getDirDisplay : function(route) {
@@ -109,30 +125,6 @@ var MapRouter = React.createClass({
   },
 
   render: function() {
-    var notifier;
-    if (this.state.db_tour_save_msg == 'success') {
-      notifier = (
-        <div className="form-group alert alert-success" role="alert">
-          <span className="glyphicon glyphicon-exclamation-sign"
-            aria-hidden="true"
-          />
-          <span className="sr-only">Error:</span>
-            {this.state.db_tour_save_msg}
-        </div>
-      );
-    } else {
-      if (this.state.db_tour_save_msg !== "") {
-        notifier = (
-          <div className="form-group alert alert-danger" role="alert">
-            <span className="glyphicon glyphicon-exclamation-sign"
-              aria-hidden="true"
-            />
-            <span className="sr-only">Error:</span>
-              {this.state.db_tour_save_msg}
-          </div>
-        );
-      } else notifier = "";
-    }
     return(
       <div className="row">
         <div className="header-off" />
@@ -143,8 +135,9 @@ var MapRouter = React.createClass({
         <div className="col-md-4 sidebar">
           {this.form()}
           <div className="form-group">
-            <button onClick={this.handleSubmit} type="submit"
-              className="btn btn-default">
+            <button id="submitBtn" onClick={this.handleSubmit}
+              type="submit" className="btn btn-success"
+              form="changeForm">
               Submit
             </button>
           </div>

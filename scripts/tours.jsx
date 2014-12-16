@@ -9,7 +9,7 @@ var superagent      = require('superagent');
 var Cell            = require('./assets/Cell');
 var dataMethodMixin = require('./assets/dataMethodMixin');
 var loadScript      = require('./assets/loadScript');
-var ModalTours           = require('./ModalTours');
+var ModalTours      = require('./ModalTours');
 var columnMetaData  = require('./assets/columnMetaData');
 var CommentBox      = require('./assets/CommentBox');
 
@@ -32,7 +32,7 @@ var TourPage = React.createClass({
   },
 
   componentDidMount: function() {
-    superagent.get('/tours/list', function(res){
+    superagent.get('/tours/listAll', function(res){
       //console.log(res);
       this.setState({
         data: res.body.tours,
@@ -46,6 +46,7 @@ var TourPage = React.createClass({
   },
 
   render: function(){
+    console.log("Received USER", this.state.user);
     return(
       <div className="row">
         <div className="header-off" />
@@ -57,13 +58,17 @@ var TourPage = React.createClass({
           </p>
           <ModalTours id={this.props.modalId}
             data={this.state.singleTourData}
+            user={this.state.user}
           />
         <Griddle
           getExternalResults={this.dataMethodHelper}
           columnMetadata={columnMetaData}
-          customFormatClassName="row" useCustomFormat="true"
-          showFilter="true" tableClassName="table"
-          customFormat={Cell} showSettings="true"
+          customFormatClassName="row"
+          useCustomFormat="true"
+          showFilter="true"
+          tableClassName="table"
+          customFormat={Cell}
+          showSettings="true"
           noDataMessage={"Please wait. Data is loading"}
           callback={this.onCellClick}
           cellStyle={{"min-height": "100px"}}

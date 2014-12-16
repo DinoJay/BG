@@ -5,10 +5,8 @@
 var React      = require('react');
 
 var superagent = require('superagent');
-var TagsInput = require("react-elements/TagsInput");
 
-
-var tagsData = ["technology", "facebook", "javascript"];
+var UserTable = require('./UserTable');
 
 var Form = {
 
@@ -91,13 +89,13 @@ var Form = {
       dest       : this.refs.dest.getDOMNode().value,
       difficulty : this.refs.difficulty.getDOMNode().value,
       end_date   : this.refs.end_date.getDOMNode().value,
-      name       :  this.refs.name.getDOMNode().value,
-      pers       :  this.refs.pers.getDOMNode().value,
-      reg_users  :  this.props.data.reg_users,
-      origin     :  this.refs.origin.getDOMNode().value,
-      start_date :  this.refs.start_date.getDOMNode().value,
-      user       :  this.refs.difficulty.getDOMNode().value,
-      route      :  this.state.route
+      name       : this.refs.name.getDOMNode().value,
+      pers       : this.refs.pers.getDOMNode().value,
+      reg_users  : this.props.data.reg_users,
+      origin     : this.refs.origin.getDOMNode().value,
+      start_date : this.refs.start_date.getDOMNode().value,
+      user       : this.refs.difficulty.getDOMNode().value,
+      route      : this.state.route
     });
   },
 
@@ -180,7 +178,6 @@ var Form = {
             defaultValue={this.props.data.descr}
             required={true}
           />
-          <TagsInput data={["computer", "angela", "putin"]}/>
         </div>
       </form>
     );

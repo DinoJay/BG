@@ -3,14 +3,11 @@
  * @flow
  */
 var React      = require('react');
+var UserTable = require('./UserTable');
+var CryptoJS = require("crypto-js");
 
-var TourDescr = React.createClass({
 
-  getDefaultProps: function() {
-    return{
-      data: null
-    };
-  },
+var tourDescr = {
 
   componentWillReceiveProps: function(newProps) {
     var origin = newProps.data.origin;
@@ -21,6 +18,8 @@ var TourDescr = React.createClass({
     var name = newProps.data.name;
     var pers = newProps.data.pers;
     var start_date = newProps.data.start_date;
+    var creator  = newProps.data.user;
+
     this.refs.origin.getDOMNode().innerHTML = origin;
     this.refs.dest.getDOMNode().innerHTML = dest;
     this.refs.descr.getDOMNode().innerHTML = descr;
@@ -28,11 +27,20 @@ var TourDescr = React.createClass({
     this.refs.end_date.getDOMNode().innerHTML = end_date;
     this.refs.pers.getDOMNode().innerHTML = pers;
     this.refs.start_date.getDOMNode().innerHTML = start_date;
+    this.refs.creator.getDOMNode().innerHTML = creator;
+    // TODO: Without this, there is no additional render triggered
+    this.setState({reg_users: newProps.data.reg_users});
+    console.log("MODAL USER", this.props.user);
   },
 
-  render: function() {
+  descr: function() {
+    var hash = CryptoJS.MD5(this.props.data.user);
+    var gravatarLink = 'http://www.gravatar.com/avatar/'+hash;
+    console.log("STATE", this.state);
+
     return(
-        <div>
+      <div>
+        <div className="row">
           <div className="col-md-6 col-xs-6">
             <label>Origin </label>
             <p ref="origin" type="text"
@@ -45,6 +53,8 @@ var TourDescr = React.createClass({
               className=""
             />
           </div>
+        </div>
+        <div className="row">
           <div className="col-md-6 col-xs-6">
             <label>Start Date</label>
             <p ref="start_date" type="date"
@@ -57,6 +67,8 @@ var TourDescr = React.createClass({
               className=""
             />
           </div>
+        </div>
+        <div className="row">
           <div className="col-md-6 col-xs-6">
             <label>Persons</label>
             <p ref="pers" type="number"
@@ -69,15 +81,48 @@ var TourDescr = React.createClass({
               className=""
             />
           </div>
-          <div className="col-md-12 col-xs-12">
+        </div>
+        <div className="row">
+          <div className="col-md-6 col-xs-6">
             <label>Description</label>
             <p ref="descr" type="text"
               className="paragraph-spacer"
             />
+            <div className="row">
+              <div className="col-xs-12 col-md-12">
+                <label>Creator</label>
+              </div>
+              <div className="col-xs-8 col-md-5 nopadding">
+                <div className="col-xs-2 col-md-3">
+                  <div className="commenterImage">
+                    <img src={gravatarLink} />
+                  </div>
+                </div>
+                <div className="col-xs-10 col-md-9">
+                  <div>
+                    <div className="commentText">
+                      <p ref="creator" type="text" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="col-md-6 col-xs-6">
+            <label>Registered Users</label>
+            <UserTable
+              regUsers={[this.props.user]}
+              data={this.state.reg_users}
+              tourId={this.props.data._id}
+              dataChangeHandler={this.props.dataChangeHandler}
+            />
           </div>
         </div>
+        <div className="paragraph-spacer"/>
+      </div>
     );
   }
-});
+};
 
-module.exports = TourDescr;
+module.exports = tourDescr;
+

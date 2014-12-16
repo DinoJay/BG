@@ -9,13 +9,8 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var favicon = require('express-favicon');
 var mongoskin = require('mongoskin');
-// TODO
-var session = require('express-session');
-// Redis server to stor session
-//var RedisStore = require('connect-redis')(session);
-//var csrf = require('csurf')
+var CryptoJS = require("crypto-js");
 var nodejsx     = require('node-jsx').install();
-
 var development = process.env.MODE !== 'production';
 
 // route helper
@@ -29,17 +24,17 @@ var webpack = require('webpack');
 var mongoose = require('mongoose');
 var uriUtil = require('mongodb-uri');
 
-var options = { 
-  server: { 
-    socketOptions: { 
-      keepAlive: 1, 
-      connectTimeoutMS: 30000 
-    } 
-  }, 
-  replset: { 
-    socketOptions: { 
-      keepAlive: 1, 
-      connectTimeoutMS : 30000 
+var options = {
+  server: {
+    socketOptions: {
+      keepAlive: 1,
+      connectTimeoutMS: 30000
+    }
+  },
+  replset: {
+    socketOptions: {
+      keepAlive: 1,
+      connectTimeoutMS : 30000
     }
   }
 };
@@ -198,24 +193,30 @@ app.get('/dashboard', stormpath.loginRequired, function(req, res) {
                                           .toLocaleDateString("en-US"));
   res.locals.user.save();
   //console.log(res.locals.user);
-  res.render('dashboard', {user: res.locals.user,
-                           gravatarLink: ""});
+  var hash = CryptoJS.MD5(req.user.username);
+
+  var gravatarLink = 'http://www.gravatar.com/avatar/'+hash;
+
+  res.render('dashboard', {title: 'dashboard', user: res.locals.user,
+                           gravatarLink: gravatarLink});
 });
 
 app.get('/tours', stormpath.loginRequired, function(req, res) {
-  res.render('tours', {});
+  res.render('tours', {title: "tours"});
 });
 app.get('/tours/list', tours.list);
+app.get('/tours/listAll', tours.listAll);
 app.get('/tours/list/:userId', tours.listRegTours);
 app.put('/tours/register', tours.register);
 app.put('/tours/change/:tourId', tours.change);
 app.del('/tours/delete/:tourId', tours.del);
+app.del('/tours/reg_users/:tourId', tours.deleteRegUser);
 
 app.get('/tours/comments/:tourId', comments.list);
 app.put('/tours/comments/:tourId', comments.add);
 
 app.get('/route', stormpath.loginRequired, function(req, res) {
-  res.render('route', {});
+  res.render('route', {title: 'route'});
 });
 app.put('/route/create', stormpath.loginRequired, tours.create);
 

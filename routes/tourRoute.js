@@ -15,6 +15,19 @@ exports.list = function(req, res, next){
   });
 };
 
+exports.listAll = function(req, res, next){
+  // TODO: find not by registered user
+  req.db.tourModel.find({}, function(error, tours){
+    console.log("Req", req);
+    console.log("found tours:");
+    console.log(tours);
+    res.send({
+      user: req.user.username,
+      tours: tours
+    });
+  });
+};
+
 exports.listRegTours = function(req, res, next){
   console.log(req.userId);
   req.db.tourModel.find({reg_users: req.userId}, function(error, tours){
@@ -118,5 +131,25 @@ exports.create = function(req, res, next){
     if (!tour) return next(new Error('Failed to save.'));
     console.info('Added %s with id=%s', tour, tour._id);
     res.send("success");
+  });
+};
+
+exports.deleteRegUser = function(req, res, next){
+  if (!req.body)
+    return next(new Error('No data provided.'));
+
+    console.log("delete Reg user");
+    req.db.tourModel.findById(req.tourId, function (err, doc){
+      if (!err) {
+        console.log("find doc users: ", doc.reg_users);
+        var userIndex = doc.reg_users.indexOf(req.body.user);
+        if (userIndex !== -1) {
+          doc.reg_users = doc.reg_users.splice(userIndex, userIndex);
+          doc.save();
+          res.send("user removal, success");
+        }
+        else return next(new Error('No reg user can be found!'));
+
+      } else console.log(err);
   });
 };

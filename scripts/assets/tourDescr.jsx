@@ -30,7 +30,9 @@ var tourDescr = {
     this.refs.creator.getDOMNode().innerHTML = creator;
     // TODO: Without this, there is no additional render triggered
     this.setState({reg_users: newProps.data.reg_users});
+    console.log("REG users", this.state.reg_users);
     console.log("MODAL USER", this.props.user);
+
   },
 
   descr: function() {
@@ -114,7 +116,7 @@ var tourDescr = {
               regUsers={[this.props.user]}
               data={this.state.reg_users}
               tourId={this.props.data._id}
-              dataChangeHandler={this.notifyRegister}
+              dataChangeHandler={this.notifyUnRegister}
             />
           </div>
         </div>

@@ -23,12 +23,18 @@ var UserTable = React.createClass({
   },
 
   componentDidMount: function() {
-    console.log("Props USerTable", this.props);
-    this.setState({data: this.props.data});
-  },
+    superagent.get("/getUsername", function(res) {
+      this.setState({data: this.props.data,
+                    user: res.body.user});
+    }.bind(this));
 
-  componentWillReceiveProps: function(newProps) {
-    console.log("Props USerTable will receive props", newProps);
+    //if (res.body.comments.length >= 3) {
+      //var backdropHeightExt = (parseInt($('.modal-backdrop')[0].style
+                                        //.height)+152)+'px';
+                                        //$('.modal-backdrop').css({
+                                          //'height':backdropHeightExt,
+                                        //});
+    //}
   },
 
   render: function() {
@@ -63,11 +69,11 @@ var UserList = React.createClass({
   },
 
   componentWillReceiveProps: function(newProps) {
-    console.log("UserTable DATA", newProps.data);
     this.setState({data: newProps.data});
   },
 
   handleDelete: function(user) {
+    console.log("USER to delete", user);
     var data = this.props.data;
     indexUser = data.indexOf(user);
 
@@ -84,7 +90,10 @@ var UserList = React.createClass({
     superagent.del("/tours/reg_users/"+this.props.tourId)
     .send({user: user})
     .end(function(error, res){
-      if (!error) console.log("Success, reg user delete");
+      if (!error){
+        console.log("Success, reg user delete");
+        console.log(res);
+      }
       else console.log(error);
     }.bind(this));
 

@@ -204,6 +204,13 @@ app.get('/dashboard', stormpath.loginRequired, function(req, res) {
 app.get('/tours', stormpath.loginRequired, function(req, res) {
   res.render('tours', {title: "tours"});
 });
+
+app.get('/user', function(req, res, next){
+   res.send({
+      user: req.user.username,
+    });
+});
+
 app.get('/tours/list', tours.list);
 app.get('/tours/listAll', tours.listAll);
 app.get('/tours/list/:userId', tours.listRegTours);

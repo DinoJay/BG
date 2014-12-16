@@ -63,6 +63,7 @@ var ModalTours = React.createClass({
       arrowShow: false,
     };
 
+    console.log("Unregister");
     this.setState({unregistered: true});
     $("#reg-btn").notify("You are unregistered!", options);
   },
@@ -85,7 +86,6 @@ var ModalTours = React.createClass({
         console.log(error);
       }
       else {
-        console.log("Response", res);
         // TODO: delete true
         if (res.text === "success"){
           $("#reg-btn").notify("You are registered!", options);
@@ -98,6 +98,7 @@ var ModalTours = React.createClass({
         }
         else {
           options.className = "warn";
+          console.log("REGISTER RESPONSE", res);
           $("#reg-btn").notify("BoOM! You are already registered "+
                                "for this tour!", options);
         }

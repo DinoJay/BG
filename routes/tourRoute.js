@@ -1,3 +1,11 @@
+Array.prototype.remove = function(value) {
+var idx = this.indexOf(value);
+if (idx != -1) {
+    return this.splice(idx, 1); // The second parameter is the number of elements to remove.
+}
+return false;
+};
+
 exports.render = function(req, res) {
   res.render('tours', {});
 };
@@ -20,7 +28,7 @@ exports.listAll = function(req, res, next){
   req.db.tourModel.find({}, function(error, tours){
     console.log("Req", req);
     console.log("found tours:");
-    console.log(tours);
+    //console.log(tours);
     res.send({
       user: req.user.username,
       tours: tours
@@ -95,9 +103,10 @@ exports.register = function(req, res, next){
 
     console.log("REgister that shit");
     req.db.tourModel.findById(req.body._id, function (err, doc){
-      console.log(doc);
       if (!err) {
+        console.log("Reg Users", doc.reg_users);
         if (doc.reg_users.indexOf(req.user.username) === -1) {
+          console.log("User", req.user.username);
           doc.reg_users.push(req.user.username);
           doc.save();
           res.send("success");
@@ -129,7 +138,7 @@ exports.create = function(req, res, next){
   tour.save(function(error, tour){
     if (error) return next(error);
     if (!tour) return next(new Error('Failed to save.'));
-    console.info('Added %s with id=%s', tour, tour._id);
+    console.info('Added %s with id=%s', tour._id);
     res.send("success");
   });
 };
@@ -138,14 +147,15 @@ exports.deleteRegUser = function(req, res, next){
   if (!req.body)
     return next(new Error('No data provided.'));
 
-    console.log("delete Reg user");
     req.db.tourModel.findById(req.tourId, function (err, doc){
       if (!err) {
+        console.log("delete Reg user for", req.body.user);
         console.log("find doc users: ", doc.reg_users);
         var userIndex = doc.reg_users.indexOf(req.body.user);
         if (userIndex !== -1) {
-          doc.reg_users = doc.reg_users.splice(userIndex, userIndex);
+          doc.reg_users.remove(req.body.user);
           doc.save();
+          console.log("find doc users: ", doc.reg_users);
           res.send("user removal, success");
         }
         else return next(new Error('No reg user can be found!'));

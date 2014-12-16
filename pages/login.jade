@@ -1,16 +1,33 @@
-// Display an error if there is any.
-if error
-  p #{error}
-
-form(method='post')
-  input(name='_csrf', type='hidden', value=csrfToken)
-  if app.get('stormpathEnableUsername')
-    input(placeholder='Username or Email', required=true, name='login', 
-    type='text')
-  else
-    input(placeholder='Email', required=true, name='login', type='text')
-
-  input(placeholder='Password', required=true, type='password', 
-  name='password')
-  button(type='submit') Log In
-
+extends layout
+block body
+  script.
+    $("#login").attr('class','active');
+  .container-fluid
+    .jumbotron.row.col-md-8.col-lg-8.col-sm-8.col-xs-8.col-lg-offset-2.col-md-offset-2.col-sm-offset-2.col-xs-offset-2
+      .login
+        form.bs-example.form-horizontal(method='post')
+            fieldset
+              legend Login
+              if error
+                .alert.alert-dismissable.alert-danger.login-fail
+                  button.close(type='button', data-dismiss='alert') &times;
+                  p.
+                    #{error}
+              p.last-p.
+                If you don't have an account yet, register in 
+                <a href='/register'>here</a>.
+              .form-group
+                form(method='post')
+                  input(name='_csrf', type='hidden', value=csrfToken)
+                  if app.get('stormpathEnableUsername')
+                    label.col-lg-6.col-md-6.col-sm-6.col-xs-6.col-lg-offset-3.col-md-offset-3.col-sm-offset-3.col-xs-offset-3.control-label(for='username') Email
+                      input.form-control(placeholder='Username or Email', required=true, name='login', type='text')
+                  else
+                    label.col-lg-6.col-md-6.col-sm-6.col-xs-6.col-lg-offset-3.col-md-offset-3.col-sm-offset-3.col-xs-offset-3.control-label(for='username') Email
+                      input#username.form-control(placeholder='Email', required=true, name='login', type='text')
+                label.col-lg-6.col-md-6.col-sm-6.col-xs-6.col-lg-offset-3.col-md-offset-3.col-sm-offset-3.col-xs-offset-3.control-label(for='password') Password
+                  input#password.form-control(placeholder='Password', required=true, type='password', name='password')
+                  .col-lg-6.col-md-6.col-sm-6.col-xs-6.col-lg-offset-3.col-md-offset-3.col-sm-offset-3.col-xs-offset-3
+                    br
+                    button.btn.btn-primary(type='submit') Login
+  // Display an error if there is any.

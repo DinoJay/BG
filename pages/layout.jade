@@ -5,24 +5,30 @@ html
     meta(content='IE=edge', http-equiv='X-UA-Compatible')
     meta(content='width=device-width, initial-scale=1', name='viewport')
     title= 'Biking Guider | ' + title
-    link(href='/main.css', rel='stylesheet')
-    .container
-      .header
-        ul.nav.nav-pills.pull-right
-          li
-            a(href='/') Home
-          if user
-            li
-              a(href='/dashboard') Dashboard
-            li
-              a(href='/tours') Tours
-            li
-              a(href='/route') Route
-            li
-              a(href='/logout') Logout
-          else
-            li
-              a(href='/login') Login
-        h3.text-muted Biking-Guider
-        body
-            block body
+    link(href="/bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet")
+    link(href='/jumbotron-narrow.css', rel='stylesheet')
+    script(src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js", type="text/javascript")
+    script(src="/bower_components/bootstrap/dist/js/bootstrap.min.js", type="text/javascript")
+    script(src="/bower_components/bootstrap/dist/js/docs.min.js", type="text/javascript")
+  body
+    .container-fluid.col-md-8.col-lg-8.col-sm-8.col-xs-8.col-lg-offset-2.col-md-offset-2.col-sm-offset-2.col-xs-offset-2
+        .header
+          ul.nav.nav-pills.pull-right
+            li(id="home") 
+              a(href='/') Home
+                if user
+                  li(id="pf")
+                    a(href='/dashboard') Dashboard
+                  li(id="tours")
+                    a(href='/tours') Tours
+                  li(id="route" )
+                    a(href='/route') Route
+                  li 
+                    a(href='/logout') Logout
+                else
+                  li(id="login")
+                    a(href='/login') Login
+                  li(id='register')
+                    a(href='/register') Register
+          h3.text-muted Biking Guider
+      block body

@@ -1,12 +1,12 @@
 extends layout
 
 block body
-
-  #welcome.jumbotron.row
-    .col-lg-8.col-lg-offset-2
+  script.
+    $("#register").attr('class','active');
+  #welcome.jumbotron.row.col-md-12.col-lg-8.col-sm-8.col-xs-8.col-lg-offset-2.col-md-offset-2.col-sm-offset-2.col-xs-offset-2
       form.bs-example.form-horizontal(method='post')
         fieldset
-          legend.col-lg-6 Create a new Account
+          legend.col-lg-6.col-md-6.col-sm-6.col-xs-6 Create a new Account
         input(name='_csrf', type='hidden', value=csrfToken)
         if error
           .alert.alert-dismissable.alert-danger.register-fail
@@ -19,34 +19,29 @@ block body
             in automatically
         if app.get('stormpathEnableGivenName')
           .form-group
-            label.col-lg-4.control-label(for='givenName') First Name
-            .col-lg-6
+            label.col-lg-6.col-md-6.col-sm-6.col-xs-6.col-lg-offset-3.col-md-offset-3.col-sm-offset-3.col-xs-offset-3.control-label.control-label(for='givenName') First Name
               input#username.form-control(placeholder='First Name', 
               name='givenName', required=app.get('stormpathRequireGivenName') ? true : false, 
               type='text')
 
         if app.get('stormpathEnableSurname')
           .form-group
-            label.col-lg-4.control-label(for='surname') Last Name
-            .col-lg-6
+            label.col-lg-6.col-md-6.col-sm-6.col-xs-6.col-lg-offset-3.col-md-offset-3.col-sm-offset-3.col-xs-offset-3.control-label.control-label(for='surname') Last Name
               input#username.form-control(placeholder='Last Name', 
               name='surname', required=app.get('stormpathRequireSurname') ? true : false, 
           type='text')
 
           .form-group
-            label.col-lg-4.control-label(for='email') Email
-            .col-lg-6
+            label.col-lg-6.col-md-6.col-sm-6.col-xs-6.col-lg-offset-3.col-md-offset-3.col-sm-offset-3.col-xs-offset-3.control-label.control-label(for='email') Email
               input#username.form-control(placeholder='Email', 
                 name='email', required='true', 
                 type='email')
 
           .form-group
-            label.col-lg-4.control-label(for='password') Password
-            .col-lg-6
+            label.col-lg-6.col-md-6.col-sm-6.col-xs-6.col-lg-offset-3.col-md-offset-3.col-sm-offset-3.col-xs-offset-3.control-label.control-label(for='password') Password
               input#password.form-control(placeholder='Password', 
               name='password', 
           required='true', type='password')
 
           form-group
-            .col-lg-10.col-lg-offset-4
              button.btn.btn-primary(type='submit') Create Account

@@ -890,6 +890,7 @@
 	    superagent.get("/tours/comments/"+this.props.tourId, function(res) {
 	      this.setState({data: res.body.comments});
 	      // TODO:
+	      console.log("COMMENTS", res.body.comments);
 	      if (res.body.comments.length >= 3) {
 	        var backdropHeightExt = (parseInt($('.modal-backdrop')[0].style
 	                                          .height)+152)+'px';
@@ -954,7 +955,7 @@
 	  render: function() {
 	    var commentNodes = this.props.data.map(function (comment, index) {
 	      return (
-	        React.createElement(Comment, {user: this.props.user}, comment.text)
+	        React.createElement(Comment, {user: comment.user}, comment.text)
 	      );
 	    }.bind(this));
 	    return React.createElement("ul", {className: "commentList"}, commentNodes);
@@ -1221,7 +1222,7 @@
 /* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(19);
+	module.exports = __webpack_require__(27);
 
 
 /***/ },
@@ -1238,14 +1239,14 @@
 	   See License / Disclaimer https://raw.githubusercontent.com/DynamicTyped/Griddle/master/LICENSE
 	*/
 	var React = __webpack_require__(10);
-	var GridBody = __webpack_require__(20);
-	var GridFilter = __webpack_require__(21);
-	var GridPagination = __webpack_require__(22);
-	var GridSettings = __webpack_require__(23);
-	var GridTitle = __webpack_require__(24);
-	var GridNoData = __webpack_require__(25);
-	var CustomFormatContainer = __webpack_require__(26);
-	var CustomPaginationContainer = __webpack_require__(27);
+	var GridBody = __webpack_require__(19);
+	var GridFilter = __webpack_require__(20);
+	var GridPagination = __webpack_require__(21);
+	var GridSettings = __webpack_require__(22);
+	var GridTitle = __webpack_require__(23);
+	var GridNoData = __webpack_require__(24);
+	var CustomFormatContainer = __webpack_require__(25);
+	var CustomPaginationContainer = __webpack_require__(26);
 	var _ = __webpack_require__(88);
 
 	var Griddle = React.createClass({displayName: 'Griddle',
@@ -3496,6 +3497,432 @@
 /* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
+	/** @jsx React.DOM */
+
+	/*
+	   Griddle - Simple Grid Component for React
+	   https://github.com/DynamicTyped/Griddle
+	   Copyright (c) 2014 Ryan Lanciaux | DynamicTyped
+
+	   See License / Disclaimer https://raw.githubusercontent.com/DynamicTyped/Griddle/master/LICENSE
+	*/
+	var React = __webpack_require__(10);
+	var GridRowContainer = __webpack_require__(62);
+	var _ = __webpack_require__(88);
+
+	var GridBody = React.createClass({displayName: 'GridBody',
+	  getDefaultProps: function(){
+	    return{
+	      "data": [],
+	      "metadataColumns": [],
+	      "className": ""
+	    }
+	  },
+	  render: function() {
+	    var that = this;
+	    //figure out if we need to wrap the group in one tbody or many
+	    var anyHasChildren = false;
+
+	    var nodes = this.props.data.map(function(row, index){
+	        var hasChildren = (typeof row["children"] !== "undefined") && row["children"].length > 0;
+
+	        //at least one item in the group has children.
+	        if (hasChildren) { anyHasChildren = hasChildren; }
+
+	        return React.createElement(GridRowContainer, {data: row, metadataColumns: that.props.metadataColumns, columnMetadata: that.props.columnMetadata, key: index, uniqueId: _.uniqueId("grid_row"), hasChildren: hasChildren, tableClassName: that.props.className})
+	    });
+
+	    //check to see if any of the rows have children... if they don't wrap everything in a tbody so the browser doesn't auto do this
+	    if (!anyHasChildren){
+	      nodes = React.createElement("tbody", null, nodes)
+	    }
+
+	    return (
+
+	            React.createElement("table", {className: this.props.className}, 
+	                nodes
+	            )
+	        );
+	    }
+	});
+
+	module.exports = GridBody;
+
+
+/***/ },
+/* 20 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/** @jsx React.DOM */
+
+	/*
+	   Griddle - Simple Grid Component for React
+	   https://github.com/DynamicTyped/Griddle
+	   Copyright (c) 2014 Ryan Lanciaux | DynamicTyped
+
+	   See License / Disclaimer https://raw.githubusercontent.com/DynamicTyped/Griddle/master/LICENSE
+	*/
+	var React = __webpack_require__(10);
+
+	var GridFilter = React.createClass({displayName: 'GridFilter',
+	    getDefaultProps: function(){
+	      return {
+	        "placeholderText": ""
+	      }
+	    },
+	    handleChange: function(event){
+	        this.props.changeFilter(event.target.value);
+	    },
+	    render: function(){
+	        return React.createElement("div", {className: "row filter-container"}, React.createElement("div", {className: "col-md-6"}, React.createElement("input", {type: "text", name: "filter", placeholder: this.props.placeholderText, className: "form-control", onChange: this.handleChange})))
+	    }
+	});
+
+	module.exports = GridFilter;
+
+
+/***/ },
+/* 21 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/** @jsx React.DOM */
+
+	/*
+	   Griddle - Simple Grid Component for React
+	   https://github.com/DynamicTyped/Griddle
+	   Copyright (c) 2014 Ryan Lanciaux | DynamicTyped
+
+	   See License / Disclaimer https://raw.githubusercontent.com/DynamicTyped/Griddle/master/LICENSE
+	*/
+	var React = __webpack_require__(10);
+
+	//needs props maxPage, currentPage, nextFunction, prevFunction
+	var GridPagination = React.createClass({displayName: 'GridPagination',
+	    getDefaultProps: function(){
+	        return{
+	            "maxPage": 0,
+	            "nextText": "",
+	            "previousText": "",
+	            "currentPage": 0
+	        }
+	    },
+	    pageChange: function(event){
+	        this.props.setPage(parseInt(event.target.value, 10)-1);
+	    },
+	    render: function(){
+	        var previous = "";
+	        var next = "";
+
+	        if(this.props.currentPage > 0){
+	            previous = React.createElement("span", {onClick: this.props.previous, className: "previous"}, React.createElement("i", {className: "glyphicon glyphicon-chevron-left"}), this.props.previousText)
+	        }
+
+	        if(this.props.currentPage !== (this.props.maxPage -1)){
+	            next = React.createElement("span", {onClick: this.props.next, className: "next"}, this.props.nextText, React.createElement("i", {className: "glyphicon glyphicon-chevron-right"}))
+	        }
+
+	        var options = [];
+
+	        for(var i = 1; i<= this.props.maxPage; i++){
+	            options.push(React.createElement("option", {value: i, key: i}, i));
+	        }
+
+	        return (
+	            React.createElement("div", {className: "row"}, 
+	                React.createElement("div", {className: "col-xs-4"}, previous), 
+	                React.createElement("div", {className: "col-xs-4 center"}, 
+	                    React.createElement("select", {value: this.props.currentPage+1, onChange: this.pageChange}, 
+	                        options
+	                    ), " / ", this.props.maxPage
+	                ), 
+	                React.createElement("div", {className: "col-xs-4 right"}, next)
+	            )
+	        )
+	    }
+	})
+
+	module.exports = GridPagination;
+
+
+/***/ },
+/* 22 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/** @jsx React.DOM */
+
+	/*
+	   Griddle - Simple Grid Component for React
+	   https://github.com/DynamicTyped/Griddle
+	   Copyright (c) 2014 Ryan Lanciaux | DynamicTyped
+
+	   See License / Disclaimer https://raw.githubusercontent.com/DynamicTyped/Griddle/master/LICENSE
+	*/
+	var React = __webpack_require__(10);
+	var _ = __webpack_require__(88);
+
+	var GridSettings = React.createClass({displayName: 'GridSettings',
+	    getDefaultProps: function(){
+	        return {
+	            "columns": [],
+	            "columnMetadata": [],
+	            "selectedColumns": [],
+	            "settingsText": "",
+	            "maxRowsText": "",
+	            "resultsPerPage": 0,
+	            "allowToggleCustom": false,
+	            "useCustomFormat": false,
+	            "toggleCustomFormat": function(){}
+	        };
+	    },
+	    setPageSize: function(event){
+	        var value = parseInt(event.target.value, 10);
+	        this.props.setPageSize(value);
+	    },
+	    handleChange: function(event){
+	        if(event.target.checked === true && _.contains(this.props.selectedColumns, event.target.dataset.name) === false){
+	            this.props.selectedColumns.push(event.target.dataset.name);
+	            this.props.setColumns(this.props.selectedColumns);
+	        } else {
+	            /* redraw with the selected columns minus the one just unchecked */
+	            this.props.setColumns(_.without(this.props.selectedColumns, event.target.dataset.name));
+	        }
+	    },
+	    render: function(){
+	        var that = this;
+
+	        var nodes = [];
+	        //don't show column selector if we're on a custom format
+	        if (that.props.useCustomFormat === false){
+	            nodes = this.props.columns.map(function(col, index){
+	                var checked = _.contains(that.props.selectedColumns, col);
+	                //check column metadata -- if this one is locked make it disabled and don't put an onChange event
+	                var meta  = _.findWhere(that.props.columnMetadata, {columnName: col});
+	                if(typeof meta !== "undefined" && meta != null && meta.locked){
+	                    return React.createElement("div", {className: "column checkbox"}, React.createElement("label", null, React.createElement("input", {type: "checkbox", disabled: true, name: "check", checked: checked, 'data-name': col}), col))
+	                }
+	                return React.createElement("div", {className: "column checkbox"}, React.createElement("label", null, React.createElement("input", {type: "checkbox", name: "check", onChange: that.handleChange, checked: checked, 'data-name': col}), col))
+	            });
+	        }
+
+	        var toggleCustom = that.props.allowToggleCustom ?   
+	                (React.createElement("div", {className: "form-group"}, 
+	                    React.createElement("label", {htmlFor: "maxRows"}, this.props.enableCustomFormatText, ":"), 
+	                    React.createElement("input", {type: "checkbox", checked: this.props.useCustomFormat, onChange: this.props.toggleCustomFormat})
+	                ))
+	                : "";
+
+	        return (React.createElement("div", {className: "griddle-settings panel"}, 
+	                React.createElement("h5", null, this.props.settingsText), 
+	                React.createElement("div", {className: "container-fluid griddle-columns"}, 
+	                    React.createElement("div", {className: "row"}, nodes)
+	                ), 
+	                React.createElement("div", {className: "form-group"}, 
+	                    React.createElement("label", {htmlFor: "maxRows"}, this.props.maxRowsText, ":"), 
+	                    React.createElement("select", {onChange: this.setPageSize, value: this.props.resultsPerPage}, 
+	                        React.createElement("option", {value: "5"}, "5"), 
+	                        React.createElement("option", {value: "10"}, "10"), 
+	                        React.createElement("option", {value: "25"}, "25"), 
+	                        React.createElement("option", {value: "50"}, "50"), 
+	                        React.createElement("option", {value: "100"}, "100")
+	                    )
+	                ), 
+	                toggleCustom
+	            ));
+	    }
+	});
+
+	module.exports = GridSettings;
+
+
+/***/ },
+/* 23 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/** @jsx React.DOM */
+
+	/*
+	   Griddle - Simple Grid Component for React
+	   https://github.com/DynamicTyped/Griddle
+	   Copyright (c) 2014 Ryan Lanciaux | DynamicTyped
+
+	   See License / Disclaimer https://raw.githubusercontent.com/DynamicTyped/Griddle/master/LICENSE
+	*/
+	var React = __webpack_require__(10);
+	var _ = __webpack_require__(88);
+
+	var GridTitle = React.createClass({displayName: 'GridTitle',
+	    getDefaultProps: function(){
+	        return {
+	           "columns":[],
+	           "sortColumn": "",
+	           "sortAscending": true
+	        }
+	    },
+	    sort: function(event){
+	        this.props.changeSort(event.target.dataset.title);
+	    },
+	    render: function(){
+	        var that = this;
+
+	        var nodes = this.props.columns.map(function(col, index){
+	            var columnSort = "";
+
+	            if(that.props.sortColumn == col && that.props.sortAscending){
+	                columnSort = "sort-ascending"
+	            }  else if (that.props.sortColumn == col && that.props.sortAscending === false){
+	                columnSort += "sort-descending"
+	            }
+	            var displayName = col;
+	            if (that.props.columnMetadata != null){
+	              var meta = _.findWhere(that.props.columnMetadata, {columnName: col})
+	              //the weird code is just saying add the space if there's text in columnSort otherwise just set to metaclassname
+	              columnSort = meta == null ? columnSort : (columnSort && (columnSort + " ")||columnSort) + meta.cssClassName;
+	              if (typeof meta !== "undefined" && typeof meta.displayName !== "undefined" && meta.displayName != null) {
+	                  displayName = meta.displayName;
+	              }
+	            }
+
+	            return (React.createElement("th", {onClick: that.sort, 'data-title': col, className: columnSort, key: displayName}, displayName));
+	        });
+
+	        return(
+	            React.createElement("thead", null, 
+	                React.createElement("tr", null, 
+	                    nodes
+	                )
+	            )
+	        );
+	    }
+	});
+
+	module.exports = GridTitle;
+
+
+/***/ },
+/* 24 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/** @jsx React.DOM */
+
+	/*
+	   Griddle - Simple Grid Component for React
+	   https://github.com/DynamicTyped/Griddle
+	   Copyright (c) 2014 Ryan Lanciaux | DynamicTyped
+
+	   See License / Disclaimer https://raw.githubusercontent.com/DynamicTyped/Griddle/master/LICENSE
+	*/
+	var React = __webpack_require__(10);
+
+	var GridNoData = React.createClass({displayName: 'GridNoData',
+	    getDefaultProps: function(){
+	        return {
+	            "noDataMessage": "No Data"
+	        }
+	    },
+	    render: function(){
+	        var that = this;
+
+	        return(
+	            React.createElement("div", null, this.props.noDataMessage)
+	        );
+	    }
+	});
+
+	module.exports = GridNoData;
+
+
+/***/ },
+/* 25 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/** @jsx React.DOM */
+
+	/*
+	   Griddle - Simple Grid Component for React
+	   https://github.com/DynamicTyped/Griddle
+	   Copyright (c) 2014 Ryan Lanciaux | DynamicTyped
+
+	   See License / Disclaimer https://raw.githubusercontent.com/DynamicTyped/Griddle/master/LICENSE
+	*/
+	var React = __webpack_require__(10);
+
+	var CustomFormatContainer = React.createClass({displayName: 'CustomFormatContainer',
+	  getDefaultProps: function(){
+	    return{
+	      "data": [],
+	      "metadataColumns": [],
+	      "className": "",
+	      "customFormat": {},
+	      "myRowData": null
+	    }
+	  },
+	  render: function() {
+	    var that = this;
+
+	    if (typeof that.props.customFormat !== 'function'){
+	      console.log("Couldn't find valid template.");
+	      return (React.createElement("div", {className: this.props.className}));
+	    }
+
+	    var nodes = this.props.data.map(function(row, index){
+	        return React.createElement(that.props.customFormat, {data: row, metadataColumns: that.props.metadataColumns, key: index, myRowData: that.props.myRowData})
+	    });
+
+	    return (
+	      React.createElement("div", {className: this.props.className},
+	          nodes
+	      )
+	    );
+	  }
+	});
+
+	module.exports = CustomFormatContainer;
+
+
+/***/ },
+/* 26 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/** @jsx React.DOM */
+
+	/*
+	   Griddle - Simple Grid Component for React
+	   https://github.com/DynamicTyped/Griddle
+	   Copyright (c) 2014 Ryan Lanciaux | DynamicTyped
+
+	   See License / Disclaimer https://raw.githubusercontent.com/DynamicTyped/Griddle/master/LICENSE
+	*/
+	var React = __webpack_require__(10);
+
+	var CustomPaginationContainer = React.createClass({displayName: 'CustomPaginationContainer',
+	  getDefaultProps: function(){
+	    return{
+	      "maxPage": 0,
+	      "nextText": "",
+	      "previousText": "",
+	      "currentPage": 0,
+	      "customPager": {}
+	    }
+	  },
+	  render: function() {
+	    var that = this;
+
+	    if (typeof that.props.customPager !== 'function'){
+	      console.log("Couldn't find valid template.");
+	      return (React.createElement("div", null));
+	    }
+
+	    return (React.createElement(that.props.customPager, {maxPage: this.props.maxPage, nextText: this.props.nextText, previousText: this.props.previousText, currentPage: this.props.currentPage, setPage: this.props.setPage, previous: this.props.previous, next: this.props.next}));
+	  }
+	});
+
+	module.exports = CustomPaginationContainer;
+
+
+/***/ },
+/* 27 */
+/***/ function(module, exports, __webpack_require__) {
+
 	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-2014, Facebook, Inc.
 	 * All rights reserved.
@@ -3682,432 +4109,6 @@
 	module.exports = React;
 	
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(92)))
-
-/***/ },
-/* 20 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/** @jsx React.DOM */
-
-	/*
-	   Griddle - Simple Grid Component for React
-	   https://github.com/DynamicTyped/Griddle
-	   Copyright (c) 2014 Ryan Lanciaux | DynamicTyped
-
-	   See License / Disclaimer https://raw.githubusercontent.com/DynamicTyped/Griddle/master/LICENSE
-	*/
-	var React = __webpack_require__(10);
-	var GridRowContainer = __webpack_require__(62);
-	var _ = __webpack_require__(88);
-
-	var GridBody = React.createClass({displayName: 'GridBody',
-	  getDefaultProps: function(){
-	    return{
-	      "data": [],
-	      "metadataColumns": [],
-	      "className": ""
-	    }
-	  },
-	  render: function() {
-	    var that = this;
-	    //figure out if we need to wrap the group in one tbody or many
-	    var anyHasChildren = false;
-
-	    var nodes = this.props.data.map(function(row, index){
-	        var hasChildren = (typeof row["children"] !== "undefined") && row["children"].length > 0;
-
-	        //at least one item in the group has children.
-	        if (hasChildren) { anyHasChildren = hasChildren; }
-
-	        return React.createElement(GridRowContainer, {data: row, metadataColumns: that.props.metadataColumns, columnMetadata: that.props.columnMetadata, key: index, uniqueId: _.uniqueId("grid_row"), hasChildren: hasChildren, tableClassName: that.props.className})
-	    });
-
-	    //check to see if any of the rows have children... if they don't wrap everything in a tbody so the browser doesn't auto do this
-	    if (!anyHasChildren){
-	      nodes = React.createElement("tbody", null, nodes)
-	    }
-
-	    return (
-
-	            React.createElement("table", {className: this.props.className}, 
-	                nodes
-	            )
-	        );
-	    }
-	});
-
-	module.exports = GridBody;
-
-
-/***/ },
-/* 21 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/** @jsx React.DOM */
-
-	/*
-	   Griddle - Simple Grid Component for React
-	   https://github.com/DynamicTyped/Griddle
-	   Copyright (c) 2014 Ryan Lanciaux | DynamicTyped
-
-	   See License / Disclaimer https://raw.githubusercontent.com/DynamicTyped/Griddle/master/LICENSE
-	*/
-	var React = __webpack_require__(10);
-
-	var GridFilter = React.createClass({displayName: 'GridFilter',
-	    getDefaultProps: function(){
-	      return {
-	        "placeholderText": ""
-	      }
-	    },
-	    handleChange: function(event){
-	        this.props.changeFilter(event.target.value);
-	    },
-	    render: function(){
-	        return React.createElement("div", {className: "row filter-container"}, React.createElement("div", {className: "col-md-6"}, React.createElement("input", {type: "text", name: "filter", placeholder: this.props.placeholderText, className: "form-control", onChange: this.handleChange})))
-	    }
-	});
-
-	module.exports = GridFilter;
-
-
-/***/ },
-/* 22 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/** @jsx React.DOM */
-
-	/*
-	   Griddle - Simple Grid Component for React
-	   https://github.com/DynamicTyped/Griddle
-	   Copyright (c) 2014 Ryan Lanciaux | DynamicTyped
-
-	   See License / Disclaimer https://raw.githubusercontent.com/DynamicTyped/Griddle/master/LICENSE
-	*/
-	var React = __webpack_require__(10);
-
-	//needs props maxPage, currentPage, nextFunction, prevFunction
-	var GridPagination = React.createClass({displayName: 'GridPagination',
-	    getDefaultProps: function(){
-	        return{
-	            "maxPage": 0,
-	            "nextText": "",
-	            "previousText": "",
-	            "currentPage": 0
-	        }
-	    },
-	    pageChange: function(event){
-	        this.props.setPage(parseInt(event.target.value, 10)-1);
-	    },
-	    render: function(){
-	        var previous = "";
-	        var next = "";
-
-	        if(this.props.currentPage > 0){
-	            previous = React.createElement("span", {onClick: this.props.previous, className: "previous"}, React.createElement("i", {className: "glyphicon glyphicon-chevron-left"}), this.props.previousText)
-	        }
-
-	        if(this.props.currentPage !== (this.props.maxPage -1)){
-	            next = React.createElement("span", {onClick: this.props.next, className: "next"}, this.props.nextText, React.createElement("i", {className: "glyphicon glyphicon-chevron-right"}))
-	        }
-
-	        var options = [];
-
-	        for(var i = 1; i<= this.props.maxPage; i++){
-	            options.push(React.createElement("option", {value: i, key: i}, i));
-	        }
-
-	        return (
-	            React.createElement("div", {className: "row"}, 
-	                React.createElement("div", {className: "col-xs-4"}, previous), 
-	                React.createElement("div", {className: "col-xs-4 center"}, 
-	                    React.createElement("select", {value: this.props.currentPage+1, onChange: this.pageChange}, 
-	                        options
-	                    ), " / ", this.props.maxPage
-	                ), 
-	                React.createElement("div", {className: "col-xs-4 right"}, next)
-	            )
-	        )
-	    }
-	})
-
-	module.exports = GridPagination;
-
-
-/***/ },
-/* 23 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/** @jsx React.DOM */
-
-	/*
-	   Griddle - Simple Grid Component for React
-	   https://github.com/DynamicTyped/Griddle
-	   Copyright (c) 2014 Ryan Lanciaux | DynamicTyped
-
-	   See License / Disclaimer https://raw.githubusercontent.com/DynamicTyped/Griddle/master/LICENSE
-	*/
-	var React = __webpack_require__(10);
-	var _ = __webpack_require__(88);
-
-	var GridSettings = React.createClass({displayName: 'GridSettings',
-	    getDefaultProps: function(){
-	        return {
-	            "columns": [],
-	            "columnMetadata": [],
-	            "selectedColumns": [],
-	            "settingsText": "",
-	            "maxRowsText": "",
-	            "resultsPerPage": 0,
-	            "allowToggleCustom": false,
-	            "useCustomFormat": false,
-	            "toggleCustomFormat": function(){}
-	        };
-	    },
-	    setPageSize: function(event){
-	        var value = parseInt(event.target.value, 10);
-	        this.props.setPageSize(value);
-	    },
-	    handleChange: function(event){
-	        if(event.target.checked === true && _.contains(this.props.selectedColumns, event.target.dataset.name) === false){
-	            this.props.selectedColumns.push(event.target.dataset.name);
-	            this.props.setColumns(this.props.selectedColumns);
-	        } else {
-	            /* redraw with the selected columns minus the one just unchecked */
-	            this.props.setColumns(_.without(this.props.selectedColumns, event.target.dataset.name));
-	        }
-	    },
-	    render: function(){
-	        var that = this;
-
-	        var nodes = [];
-	        //don't show column selector if we're on a custom format
-	        if (that.props.useCustomFormat === false){
-	            nodes = this.props.columns.map(function(col, index){
-	                var checked = _.contains(that.props.selectedColumns, col);
-	                //check column metadata -- if this one is locked make it disabled and don't put an onChange event
-	                var meta  = _.findWhere(that.props.columnMetadata, {columnName: col});
-	                if(typeof meta !== "undefined" && meta != null && meta.locked){
-	                    return React.createElement("div", {className: "column checkbox"}, React.createElement("label", null, React.createElement("input", {type: "checkbox", disabled: true, name: "check", checked: checked, 'data-name': col}), col))
-	                }
-	                return React.createElement("div", {className: "column checkbox"}, React.createElement("label", null, React.createElement("input", {type: "checkbox", name: "check", onChange: that.handleChange, checked: checked, 'data-name': col}), col))
-	            });
-	        }
-
-	        var toggleCustom = that.props.allowToggleCustom ?   
-	                (React.createElement("div", {className: "form-group"}, 
-	                    React.createElement("label", {htmlFor: "maxRows"}, this.props.enableCustomFormatText, ":"), 
-	                    React.createElement("input", {type: "checkbox", checked: this.props.useCustomFormat, onChange: this.props.toggleCustomFormat})
-	                ))
-	                : "";
-
-	        return (React.createElement("div", {className: "griddle-settings panel"}, 
-	                React.createElement("h5", null, this.props.settingsText), 
-	                React.createElement("div", {className: "container-fluid griddle-columns"}, 
-	                    React.createElement("div", {className: "row"}, nodes)
-	                ), 
-	                React.createElement("div", {className: "form-group"}, 
-	                    React.createElement("label", {htmlFor: "maxRows"}, this.props.maxRowsText, ":"), 
-	                    React.createElement("select", {onChange: this.setPageSize, value: this.props.resultsPerPage}, 
-	                        React.createElement("option", {value: "5"}, "5"), 
-	                        React.createElement("option", {value: "10"}, "10"), 
-	                        React.createElement("option", {value: "25"}, "25"), 
-	                        React.createElement("option", {value: "50"}, "50"), 
-	                        React.createElement("option", {value: "100"}, "100")
-	                    )
-	                ), 
-	                toggleCustom
-	            ));
-	    }
-	});
-
-	module.exports = GridSettings;
-
-
-/***/ },
-/* 24 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/** @jsx React.DOM */
-
-	/*
-	   Griddle - Simple Grid Component for React
-	   https://github.com/DynamicTyped/Griddle
-	   Copyright (c) 2014 Ryan Lanciaux | DynamicTyped
-
-	   See License / Disclaimer https://raw.githubusercontent.com/DynamicTyped/Griddle/master/LICENSE
-	*/
-	var React = __webpack_require__(10);
-	var _ = __webpack_require__(88);
-
-	var GridTitle = React.createClass({displayName: 'GridTitle',
-	    getDefaultProps: function(){
-	        return {
-	           "columns":[],
-	           "sortColumn": "",
-	           "sortAscending": true
-	        }
-	    },
-	    sort: function(event){
-	        this.props.changeSort(event.target.dataset.title);
-	    },
-	    render: function(){
-	        var that = this;
-
-	        var nodes = this.props.columns.map(function(col, index){
-	            var columnSort = "";
-
-	            if(that.props.sortColumn == col && that.props.sortAscending){
-	                columnSort = "sort-ascending"
-	            }  else if (that.props.sortColumn == col && that.props.sortAscending === false){
-	                columnSort += "sort-descending"
-	            }
-	            var displayName = col;
-	            if (that.props.columnMetadata != null){
-	              var meta = _.findWhere(that.props.columnMetadata, {columnName: col})
-	              //the weird code is just saying add the space if there's text in columnSort otherwise just set to metaclassname
-	              columnSort = meta == null ? columnSort : (columnSort && (columnSort + " ")||columnSort) + meta.cssClassName;
-	              if (typeof meta !== "undefined" && typeof meta.displayName !== "undefined" && meta.displayName != null) {
-	                  displayName = meta.displayName;
-	              }
-	            }
-
-	            return (React.createElement("th", {onClick: that.sort, 'data-title': col, className: columnSort, key: displayName}, displayName));
-	        });
-
-	        return(
-	            React.createElement("thead", null, 
-	                React.createElement("tr", null, 
-	                    nodes
-	                )
-	            )
-	        );
-	    }
-	});
-
-	module.exports = GridTitle;
-
-
-/***/ },
-/* 25 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/** @jsx React.DOM */
-
-	/*
-	   Griddle - Simple Grid Component for React
-	   https://github.com/DynamicTyped/Griddle
-	   Copyright (c) 2014 Ryan Lanciaux | DynamicTyped
-
-	   See License / Disclaimer https://raw.githubusercontent.com/DynamicTyped/Griddle/master/LICENSE
-	*/
-	var React = __webpack_require__(10);
-
-	var GridNoData = React.createClass({displayName: 'GridNoData',
-	    getDefaultProps: function(){
-	        return {
-	            "noDataMessage": "No Data"
-	        }
-	    },
-	    render: function(){
-	        var that = this;
-
-	        return(
-	            React.createElement("div", null, this.props.noDataMessage)
-	        );
-	    }
-	});
-
-	module.exports = GridNoData;
-
-
-/***/ },
-/* 26 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/** @jsx React.DOM */
-
-	/*
-	   Griddle - Simple Grid Component for React
-	   https://github.com/DynamicTyped/Griddle
-	   Copyright (c) 2014 Ryan Lanciaux | DynamicTyped
-
-	   See License / Disclaimer https://raw.githubusercontent.com/DynamicTyped/Griddle/master/LICENSE
-	*/
-	var React = __webpack_require__(10);
-
-	var CustomFormatContainer = React.createClass({displayName: 'CustomFormatContainer',
-	  getDefaultProps: function(){
-	    return{
-	      "data": [],
-	      "metadataColumns": [],
-	      "className": "",
-	      "customFormat": {},
-	      "myRowData": null
-	    }
-	  },
-	  render: function() {
-	    var that = this;
-
-	    if (typeof that.props.customFormat !== 'function'){
-	      console.log("Couldn't find valid template.");
-	      return (React.createElement("div", {className: this.props.className}));
-	    }
-
-	    var nodes = this.props.data.map(function(row, index){
-	        return React.createElement(that.props.customFormat, {data: row, metadataColumns: that.props.metadataColumns, key: index, myRowData: that.props.myRowData})
-	    });
-
-	    return (
-	      React.createElement("div", {className: this.props.className},
-	          nodes
-	      )
-	    );
-	  }
-	});
-
-	module.exports = CustomFormatContainer;
-
-
-/***/ },
-/* 27 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/** @jsx React.DOM */
-
-	/*
-	   Griddle - Simple Grid Component for React
-	   https://github.com/DynamicTyped/Griddle
-	   Copyright (c) 2014 Ryan Lanciaux | DynamicTyped
-
-	   See License / Disclaimer https://raw.githubusercontent.com/DynamicTyped/Griddle/master/LICENSE
-	*/
-	var React = __webpack_require__(10);
-
-	var CustomPaginationContainer = React.createClass({displayName: 'CustomPaginationContainer',
-	  getDefaultProps: function(){
-	    return{
-	      "maxPage": 0,
-	      "nextText": "",
-	      "previousText": "",
-	      "currentPage": 0,
-	      "customPager": {}
-	    }
-	  },
-	  render: function() {
-	    var that = this;
-
-	    if (typeof that.props.customPager !== 'function'){
-	      console.log("Couldn't find valid template.");
-	      return (React.createElement("div", null));
-	    }
-
-	    return (React.createElement(that.props.customPager, {maxPage: this.props.maxPage, nextText: this.props.nextText, previousText: this.props.previousText, currentPage: this.props.currentPage, setPage: this.props.setPage, previous: this.props.previous, next: this.props.next}));
-	  }
-	});
-
-	module.exports = CustomPaginationContainer;
-
 
 /***/ },
 /* 28 */,
@@ -27527,7 +27528,7 @@
 
 	"use strict";
 
-	var hyphenate = __webpack_require__(209);
+	var hyphenate = __webpack_require__(207);
 
 	var msPattern = /^ms-/;
 
@@ -27574,8 +27575,8 @@
 	var EventPluginRegistry = __webpack_require__(171);
 	var EventPluginUtils = __webpack_require__(64);
 
-	var accumulateInto = __webpack_require__(207);
-	var forEachAccumulated = __webpack_require__(208);
+	var accumulateInto = __webpack_require__(208);
+	var forEachAccumulated = __webpack_require__(209);
 	var invariant = __webpack_require__(99);
 
 	/**
@@ -28226,8 +28227,8 @@
 	var EventConstants = __webpack_require__(98);
 	var EventPluginHub = __webpack_require__(170);
 
-	var accumulateInto = __webpack_require__(207);
-	var forEachAccumulated = __webpack_require__(208);
+	var accumulateInto = __webpack_require__(208);
+	var forEachAccumulated = __webpack_require__(209);
 
 	var PropagationPhases = EventConstants.PropagationPhases;
 	var getListener = EventPluginHub.getListener;
@@ -29431,8 +29432,8 @@
 
 	var ReactBrowserEventEmitter = __webpack_require__(117);
 
-	var accumulateInto = __webpack_require__(207);
-	var forEachAccumulated = __webpack_require__(208);
+	var accumulateInto = __webpack_require__(208);
+	var forEachAccumulated = __webpack_require__(209);
 	var invariant = __webpack_require__(99);
 
 	function remove(event) {
@@ -30752,6 +30753,43 @@
 /* 207 */
 /***/ function(module, exports, __webpack_require__) {
 
+	/**
+	 * Copyright 2013-2014, Facebook, Inc.
+	 * All rights reserved.
+	 *
+	 * This source code is licensed under the BSD-style license found in the
+	 * LICENSE file in the root directory of this source tree. An additional grant
+	 * of patent rights can be found in the PATENTS file in the same directory.
+	 *
+	 * @providesModule hyphenate
+	 * @typechecks
+	 */
+
+	var _uppercasePattern = /([A-Z])/g;
+
+	/**
+	 * Hyphenates a camelcased string, for example:
+	 *
+	 *   > hyphenate('backgroundColor')
+	 *   < "background-color"
+	 *
+	 * For CSS style names, use `hyphenateStyleName` instead which works properly
+	 * with all vendor prefixes, including `ms`.
+	 *
+	 * @param {string} string
+	 * @return {string}
+	 */
+	function hyphenate(string) {
+	  return string.replace(_uppercasePattern, '-$1').toLowerCase();
+	}
+
+	module.exports = hyphenate;
+
+
+/***/ },
+/* 208 */
+/***/ function(module, exports, __webpack_require__) {
+
 	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2014, Facebook, Inc.
 	 * All rights reserved.
@@ -30818,7 +30856,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(92)))
 
 /***/ },
-/* 208 */
+/* 209 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -30850,43 +30888,6 @@
 	};
 
 	module.exports = forEachAccumulated;
-
-
-/***/ },
-/* 209 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Copyright 2013-2014, Facebook, Inc.
-	 * All rights reserved.
-	 *
-	 * This source code is licensed under the BSD-style license found in the
-	 * LICENSE file in the root directory of this source tree. An additional grant
-	 * of patent rights can be found in the PATENTS file in the same directory.
-	 *
-	 * @providesModule hyphenate
-	 * @typechecks
-	 */
-
-	var _uppercasePattern = /([A-Z])/g;
-
-	/**
-	 * Hyphenates a camelcased string, for example:
-	 *
-	 *   > hyphenate('backgroundColor')
-	 *   < "background-color"
-	 *
-	 * For CSS style names, use `hyphenateStyleName` instead which works properly
-	 * with all vendor prefixes, including `ms`.
-	 *
-	 * @param {string} string
-	 * @return {string}
-	 */
-	function hyphenate(string) {
-	  return string.replace(_uppercasePattern, '-$1').toLowerCase();
-	}
-
-	module.exports = hyphenate;
 
 
 /***/ },

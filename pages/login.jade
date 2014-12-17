@@ -1,16 +1,48 @@
-// Display an error if there is any.
-if error
-  p #{error}
-
-form(method='post')
-  input(name='_csrf', type='hidden', value=csrfToken)
-  if app.get('stormpathEnableUsername')
-    input(placeholder='Username or Email', required=true, name='login',
-    type='text')
-  else
-    input(placeholder='Email', required=true, name='login', type='text')
-
-  input(placeholder='Password', required=true, type='password',
-  name='password')
-  button(type='submit') Log In
+extends layout
+block body
+  .container-fluid
+    .jumbotron.row
+      .col-md-8.col-lg-8.col-sm-8.col-xs-8.col-lg-offset-2.col-md-offset-2.col-sm-offset-2.col-xs-offset-2
+        formcol-md-8.col-lg-8.col-sm-8.col-xs-8.col-lg-offset-2.col-md-offset-2.col-sm-offset-2.col-xs-offset-2.bs-example.form-horizontal(method='post')
+          fieldset
+            h1 Login
+            br
+            p.last-p.
+              If you don't have an account yet, register in <a href='/register'>here</a>.
+            br
+            if error
+              .alert.alert-dismissable.alert-danger.login-fail
+                button.close(type='button', data-dismiss='alert') &times;
+                p.
+                   #{error}
+            form-group
+              form(method='post')
+                input(name='_csrf', type='hidden', value=csrfToken)
+                if app.get('stormpathEnableUsername')
+                  label.col-md-3.pull-left.control-label(for='username') Email
+                  .col-md-9
+                    input.form-control(placeholder='Username or Email', required=true, name='login', type='text')
+                else
+                  label.col-md-3.pull-left.control-label(for='username') Email
+                  .col-md-9
+                    input#username.form-control(placeholder='Email', required=true, name='login', type='text')
+                  br
+                  br
+                  br
+                  label.col-md-3.pull-left.control-label(for='password') Password
+                  .col-md-9
+                    input#password.form-control(placeholder='Password', required=true, type='password', name='password')
+                    br
+                    br
+                    button.pull-left.btn-lg.btn.btn-primary(type='submit') Login
+                br
+                br
+                br
+                br
+                br
+                br
+                br
+                br
+                br
+                br
 

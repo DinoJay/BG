@@ -1,0 +1,9 @@
+.jumbotron{
+  background-image: url(http://images.alphacoders.com/457/457661.jpg);
+  background-repeat: no-repeat;
+  background-position: bottom;
+  padding: -60px;
+}
+ul li{
+   content: "•";
+}

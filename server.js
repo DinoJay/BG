@@ -196,9 +196,23 @@ app.get('/dashboard', stormpath.loginRequired, function(req, res) {
   var hash = CryptoJS.MD5(req.user.username);
 
   var gravatarLink = 'http://www.gravatar.com/avatar/'+hash;
-
-  res.render('dashboard', {title: 'dashboard', user: res.locals.user,
-                           gravatarLink: gravatarLink});
+  req.db.tourModel.find({user: req.user.username}).count(
+    function(err, countCreated){
+      if (err) return handleError(err);
+      console.log("Count", countCreated);
+      console.log(req.userId);
+      req.db.tourModel.find({reg_users: req.user.username})
+        .count(function(error, countRegistered){
+          console.log("Count Registered", countRegistered);
+                              res.render('dashboard', {
+                                title: 'dashboard',
+                                user: res.locals.user,
+                                gravatarLink: gravatarLink,
+                                countCreated: countCreated,
+                                countRegistered: countRegistered
+                              });
+                            });
+  });
 });
 
 app.get('/tours', stormpath.loginRequired, function(req, res) {

@@ -52,6 +52,7 @@ var CommentBox = React.createClass({
     superagent.get("/tours/comments/"+this.props.tourId, function(res) {
       this.setState({data: res.body.comments});
       // TODO:
+      console.log("COMMENTS", res.body.comments);
       if (res.body.comments.length >= 3) {
         var backdropHeightExt = (parseInt($('.modal-backdrop')[0].style
                                           .height)+152)+'px';
@@ -116,7 +117,7 @@ var CommentList = React.createClass({
   render: function() {
     var commentNodes = this.props.data.map(function (comment, index) {
       return (
-        <Comment user={this.props.user}>{comment.text}</Comment>
+        <Comment user={comment.user}>{comment.text}</Comment>
       );
     }.bind(this));
     return <ul className="commentList">{commentNodes}</ul>;

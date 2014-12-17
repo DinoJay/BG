@@ -127,7 +127,6 @@ var MapRouter = React.createClass({
   render: function() {
     return(
       <div className="row">
-        <div className="header-off" />
         <h1>Create your own Tour and share it!</h1>
         <p className="lead">
           Choose your date, select a route and wait TODO

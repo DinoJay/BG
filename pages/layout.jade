@@ -1,11 +1,12 @@
 doctype html
 html
   head
-    meta(charset='utf-8')
+    meta(charset='utf-10')
     meta(content='IE=edge', http-equiv='X-UA-Compatible')
     meta(content='width=device-width, initial-scale=1', name='viewport')
     title= 'Biking Guider | ' + title
     link(href='/main.css', rel='stylesheet')
+    link(href='/customized.css', rel='stylesheet')
     .container
       .header
         ul.nav.nav-pills.pull-right
@@ -23,6 +24,9 @@ html
           else
             li
               a(href='/login') Login
+            li
+              a(href='/register') Register
         h3.text-muted Biking-Guider
+        br
         body
             block body

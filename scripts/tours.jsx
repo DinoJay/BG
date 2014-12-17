@@ -49,7 +49,6 @@ var TourPage = React.createClass({
     console.log("Received USER", this.state.user);
     return(
       <div className="row">
-        <div className="header-off" />
         <div className="col-md-12">
           <h1>Find your very own tour and enjoy!</h1>
           <p className="lead">

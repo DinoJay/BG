@@ -173,7 +173,6 @@
 	  render: function() {
 	    return(
 	      React.createElement("div", {className: "row"}, 
-	        React.createElement("div", {className: "header-off"}), 
 	        React.createElement("h1", null, "Create your own Tour and share it!"), 
 	        React.createElement("p", {className: "lead"}, 
 	          "Choose your date, select a route and wait TODO"
@@ -657,7 +656,7 @@
 /* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(19);
+	module.exports = __webpack_require__(27);
 
 
 /***/ },
@@ -1750,7 +1749,15 @@
 
 /***/ },
 /* 18 */,
-/* 19 */
+/* 19 */,
+/* 20 */,
+/* 21 */,
+/* 22 */,
+/* 23 */,
+/* 24 */,
+/* 25 */,
+/* 26 */,
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -1941,14 +1948,6 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(92)))
 
 /***/ },
-/* 20 */,
-/* 21 */,
-/* 22 */,
-/* 23 */,
-/* 24 */,
-/* 25 */,
-/* 26 */,
-/* 27 */,
 /* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -16304,7 +16303,7 @@
 
 	"use strict";
 
-	var hyphenate = __webpack_require__(209);
+	var hyphenate = __webpack_require__(207);
 
 	var msPattern = /^ms-/;
 
@@ -16351,8 +16350,8 @@
 	var EventPluginRegistry = __webpack_require__(171);
 	var EventPluginUtils = __webpack_require__(64);
 
-	var accumulateInto = __webpack_require__(207);
-	var forEachAccumulated = __webpack_require__(208);
+	var accumulateInto = __webpack_require__(208);
+	var forEachAccumulated = __webpack_require__(209);
 	var invariant = __webpack_require__(99);
 
 	/**
@@ -17003,8 +17002,8 @@
 	var EventConstants = __webpack_require__(98);
 	var EventPluginHub = __webpack_require__(170);
 
-	var accumulateInto = __webpack_require__(207);
-	var forEachAccumulated = __webpack_require__(208);
+	var accumulateInto = __webpack_require__(208);
+	var forEachAccumulated = __webpack_require__(209);
 
 	var PropagationPhases = EventConstants.PropagationPhases;
 	var getListener = EventPluginHub.getListener;
@@ -18208,8 +18207,8 @@
 
 	var ReactBrowserEventEmitter = __webpack_require__(117);
 
-	var accumulateInto = __webpack_require__(207);
-	var forEachAccumulated = __webpack_require__(208);
+	var accumulateInto = __webpack_require__(208);
+	var forEachAccumulated = __webpack_require__(209);
 	var invariant = __webpack_require__(99);
 
 	function remove(event) {
@@ -19529,6 +19528,43 @@
 /* 207 */
 /***/ function(module, exports, __webpack_require__) {
 
+	/**
+	 * Copyright 2013-2014, Facebook, Inc.
+	 * All rights reserved.
+	 *
+	 * This source code is licensed under the BSD-style license found in the
+	 * LICENSE file in the root directory of this source tree. An additional grant
+	 * of patent rights can be found in the PATENTS file in the same directory.
+	 *
+	 * @providesModule hyphenate
+	 * @typechecks
+	 */
+
+	var _uppercasePattern = /([A-Z])/g;
+
+	/**
+	 * Hyphenates a camelcased string, for example:
+	 *
+	 *   > hyphenate('backgroundColor')
+	 *   < "background-color"
+	 *
+	 * For CSS style names, use `hyphenateStyleName` instead which works properly
+	 * with all vendor prefixes, including `ms`.
+	 *
+	 * @param {string} string
+	 * @return {string}
+	 */
+	function hyphenate(string) {
+	  return string.replace(_uppercasePattern, '-$1').toLowerCase();
+	}
+
+	module.exports = hyphenate;
+
+
+/***/ },
+/* 208 */
+/***/ function(module, exports, __webpack_require__) {
+
 	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2014, Facebook, Inc.
 	 * All rights reserved.
@@ -19595,7 +19631,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(92)))
 
 /***/ },
-/* 208 */
+/* 209 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -19627,43 +19663,6 @@
 	};
 
 	module.exports = forEachAccumulated;
-
-
-/***/ },
-/* 209 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Copyright 2013-2014, Facebook, Inc.
-	 * All rights reserved.
-	 *
-	 * This source code is licensed under the BSD-style license found in the
-	 * LICENSE file in the root directory of this source tree. An additional grant
-	 * of patent rights can be found in the PATENTS file in the same directory.
-	 *
-	 * @providesModule hyphenate
-	 * @typechecks
-	 */
-
-	var _uppercasePattern = /([A-Z])/g;
-
-	/**
-	 * Hyphenates a camelcased string, for example:
-	 *
-	 *   > hyphenate('backgroundColor')
-	 *   < "background-color"
-	 *
-	 * For CSS style names, use `hyphenateStyleName` instead which works properly
-	 * with all vendor prefixes, including `ms`.
-	 *
-	 * @param {string} string
-	 * @return {string}
-	 */
-	function hyphenate(string) {
-	  return string.replace(_uppercasePattern, '-$1').toLowerCase();
-	}
-
-	module.exports = hyphenate;
 
 
 /***/ },

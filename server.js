@@ -18,7 +18,7 @@ var tours = require('./routes/tourRoute.js');
 var comments = require('./routes/commentRoute.js');
 
 // client code bundling
-var webpackMiddleware = require('webpack-dev-middleware');
+//var webpackMiddleware = require('webpack-dev-middleware');
 var webpack = require('webpack');
 
 var mongoose = require('mongoose');
@@ -129,32 +129,32 @@ app.use(sessionMiddleware);
 app.use(require('less-middleware')(__dirname + '/public'));
 app.use(express.static(path.join(__dirname, '/public')));
 
-if (development){
-  app.use(webpackMiddleware(webpack({
-    entry: {
-      dashboard: path.join(__dirname, 'scripts/dashboard.jsx'),
-      tours: path.join(__dirname, 'scripts/tours.jsx'),
-      route: path.join(__dirname, 'scripts/route.jsx')
-    },
-    output: {
-      path: '/',
-      filename: '[name].bundle.js',
-    },
-    resolve: {
-      extensions: ['', '.js', '.jsx']
-    },
-    module: {
-      loaders: [
-        { test: /\.jsx$/, loader: "jsx" }
-      ]
-    }
-  }),
-  {
-    stats: {
-      colors: true
-    }
-  }));
-}
+//if (development){
+  //app.use(webpackMiddleware(webpack({
+    //entry: {
+      //dashboard: path.join(__dirname, 'scripts/dashboard.jsx'),
+      //tours: path.join(__dirname, 'scripts/tours.jsx'),
+      //route: path.join(__dirname, 'scripts/route.jsx')
+    //},
+    //output: {
+      //path: '/',
+      //filename: '[name].bundle.js',
+    //},
+    //resolve: {
+      //extensions: ['', '.js', '.jsx']
+    //},
+    //module: {
+      //loaders: [
+        //{ test: /\.jsx$/, loader: "jsx" }
+      //]
+    //}
+  //}),
+  //{
+    //stats: {
+      //colors: true
+    //}
+  //}));
+//}
 
 // Configure Stormpath.
 app.use(stormpath.init(app, {

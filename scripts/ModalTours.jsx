@@ -10,7 +10,6 @@ var ModalTrigger = require('./assets/ModalTrigger');
 
 var superagent   = require('superagent');
 
-
 var ModalTours = React.createClass({
   mixins: [require('./assets/tourDescr')],
 
@@ -29,7 +28,8 @@ var ModalTours = React.createClass({
       error: null,
       open: false,
       reg_users: [],
-      unregistered: false
+      unregistered: false,
+      tags: ["test"]
     };
   },
 
@@ -108,6 +108,7 @@ var ModalTours = React.createClass({
 
   render: function() {
     var regBtnClass = "btn btn-success";
+    console.log("render");
     if (this.state.reg_users !== undefined) {
       if (this.state.reg_users.indexOf(this.props.user) !== -1) {
         console.log("Are you found", this.props.user);
@@ -158,6 +159,7 @@ var ModalTours = React.createClass({
             <div className="modal-footer">
               {regBtn}
             </div>
+            <div id="my-tag-list" class="tag-list"></div>
           </div>
         </div>
       </div>

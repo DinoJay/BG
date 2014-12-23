@@ -65,7 +65,8 @@ var tourSchema = mongoose.Schema({
     descr      : String,
     route      : Object,
     user       : String,
-    reg_users  : Array
+    reg_users  : Array,
+    tags       : Array
 });
 
 // Store song documents in a collection called "songs"
@@ -136,15 +137,15 @@ if (development){
       route: path.join(__dirname, 'scripts/route.jsx')
     },
     output: {
-        path: '/',
-        filename: '[name].bundle.js',
+      path: '/',
+      filename: '[name].bundle.js',
     },
     resolve: {
       extensions: ['', '.js', '.jsx']
     },
     module: {
       loaders: [
-            { test: /\.jsx$/, loader: "jsx" }
+        { test: /\.jsx$/, loader: "jsx" }
       ]
     }
   }),

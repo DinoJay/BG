@@ -20,19 +20,20 @@ var MapRouter = React.createClass({
     return {
       route        : null,
       savedDb : false,
+      tags: []
     };
   },
 
   getDefaultProps: function(){
     return({
       data: {
-        origin : null,
-        dest : null,
-        descr : null,
+        origin     : null,
+        dest       : null,
+        descr      : null,
         difficulty : null,
-        end_date : null,
-        name : null,
-        pers : null,
+        end_date   : null,
+        name       : null,
+        pers       : null,
         start_date : null,
       },
       gmaps_api_key : '',
@@ -84,7 +85,8 @@ var MapRouter = React.createClass({
         pers       : this.refs.pers.getDOMNode().value,
         difficulty : this.refs.difficulty.getDOMNode().value,
         descr      : this.refs.descr.getDOMNode().value,
-        route      : this.Route.routes[0].overview_path
+        route      : this.Route.routes[0].overview_path,
+        tags       : this.state.tags
       })
       .end(function(error, res){
         if (error) console.log(error);

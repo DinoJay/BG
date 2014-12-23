@@ -2,11 +2,12 @@
  * @jsx React.DOM
  * @flow
  */
-var React          = require('react');
-var Griddle        = require('griddle-react');
-var superagent     = require('superagent');
+var React        = require('react');
+var Griddle      = require('griddle-react');
+var superagent   = require('superagent');
 
-var ModalTrigger   = require('./ModalTrigger');
+var ModalTrigger = require('./ModalTrigger');
+var TagInput     = require("./TagInput");
 
 var Cell = React.createClass({
   getDefaultProps: function(){
@@ -24,7 +25,6 @@ var Cell = React.createClass({
   },
 
   render: function(){
-    //console.log("Cell", this.props);
     return(
       <ModalTrigger iD={this.props.myRowData.modalId}>
         <div className="col-md-4" onClick={this.handleClick}>
@@ -46,6 +46,15 @@ var Cell = React.createClass({
                   Dest: {this.props.data.dest}
                 </small>
               </div>
+            </div>
+            <div style={{"padding": "10px", "padding-top": "20px"}}>
+              <div className="label" style={{"color": "#333"}}>
+                Tags:
+              </div>
+              <TagInput initialTags={this.props.data.tags}
+                readOnly={true}
+                grid={true}
+              />
             </div>
           </div>
         </div>

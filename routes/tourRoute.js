@@ -120,6 +120,9 @@ exports.register = function(req, res, next){
 };
 
 exports.create = function(req, res, next){
+  if (!req.body)
+    return next(new Error('No data provided.'));
+
   var tour = new req.db.tourModel({
     name       : req.body.name,
     origin     : req.body.origin,
@@ -131,9 +134,9 @@ exports.create = function(req, res, next){
     descr      : req.body.descr,
     route      : req.body.route,
     user       : req.user.username,
+    tags       : req.body.tags
   });
-  if (!req.body)
-    return next(new Error('No data provided.'));
+  console.log("Tour creation", req.body.tags);
 
   tour.save(function(error, tour){
     if (error) return next(error);

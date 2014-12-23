@@ -2,6 +2,7 @@
  * @jsx React.DOM
  * @flow
  */
+
 function search(cell, filterString) {
   filterString = filterString.toLowerCase();
 
@@ -21,7 +22,10 @@ var dataMethodMixin = {
     if (filterString !== "nothing") {
       parRes = [];
       this.state.data.forEach(function(cell){
-        if (search(cell, filterString))
+        console.log("CELL tags", cell.tags);
+        console.log("filterString", filterString);
+        if (search(cell, filterString)||
+            cell.tags.indexOf(filterString) !== -1)
           parRes.push(cell);
       });
       //if (parRes.length === 0) parRes = this.state.data;

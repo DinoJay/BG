@@ -29,16 +29,17 @@ var tourDescr = {
     this.refs.start_date.getDOMNode().innerHTML = start_date;
     this.refs.creator.getDOMNode().innerHTML = creator;
     // TODO: Without this, there is no additional render triggered
-    this.setState({reg_users: newProps.data.reg_users});
-    console.log("REG users", this.state.reg_users);
-    console.log("MODAL USER", this.props.user);
-
+    console.log("Set State", newProps.data.tags);
+    this.setState({
+      reg_users: newProps.data.reg_users,
+      tags: newProps.data.tags
+    });
   },
 
   descr: function() {
     var hash = CryptoJS.MD5(this.props.data.user);
     var gravatarLink = 'http://www.gravatar.com/avatar/'+hash;
-    console.log("STATE", this.state);
+    console.log("Props", this.state.reg_users);
 
     return(
       <div>
@@ -88,28 +89,30 @@ var tourDescr = {
           <div className="col-md-6 col-xs-6">
             <label>Description</label>
             <p ref="descr" type="text"
-              className="paragraph-spacer"
+              className=""
             />
-            <div className="row">
-              <div className="col-xs-12 col-md-12">
-                <label>Creator</label>
-              </div>
-              <div className="col-xs-8 col-md-5 nopadding">
-                <div className="col-xs-2 col-md-3">
-                  <div className="commenterImage">
-                    <img src={gravatarLink} />
-                  </div>
+          </div>
+          <div className="col-md-6 col-xs-6 paragraph-spacer">
+            <div className="col-xs-12 col-md-12 nopadding">
+              <label>Creator</label>
+            </div>
+            <div className="col-xs-8 col-md-5 nopadding">
+              <div className="col-xs-2 col-md-3 nopadding">
+                <div className="commenterImage">
+                  <img src={gravatarLink} />
                 </div>
-                <div className="col-xs-10 col-md-9">
-                  <div>
-                    <div className="commentText">
-                      <p ref="creator" type="text" />
-                    </div>
+              </div>
+              <div className="col-xs-10 col-md-9">
+                <div>
+                  <div className="commentText">
+                    <p ref="creator" type="text" />
                   </div>
                 </div>
               </div>
             </div>
           </div>
+        </div>
+        <div className="row">
           <div className="col-md-6 col-xs-6">
             <label>Registered Users</label>
             <UserTable

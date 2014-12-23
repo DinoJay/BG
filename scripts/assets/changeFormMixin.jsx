@@ -5,7 +5,7 @@
 var React      = require('react');
 
 var superagent = require('superagent');
-var TagsInput = require("react-elements/TagsInput");
+var TagInput = require("./TagInput");
 
 
 var tagsData = ["technology", "facebook", "javascript"];
@@ -101,6 +101,11 @@ var Form = {
     });
   },
 
+  getTags: function(tags) {
+    console.log("TAGS: ", tags);
+    this.setState({tags: tags});
+  },
+
   form: function() {
     return(
       <form id="changeForm"
@@ -180,8 +185,14 @@ var Form = {
             defaultValue={this.props.data.descr}
             required={true}
           />
-          <TagsInput data={["computer", "angela", "putin"]}/>
         </div>
+          <div className="form-group">
+            <label>Tags</label>
+            <TagInput initialTags={[]}
+              handler={this.getTags}
+              readOnly={false}
+            />
+          </div>
       </form>
     );
   }

@@ -1,22 +1,27 @@
 extends layout
 block body
-    .container-fluid
-      .row
-        .jumbotron
+  .container-fluid
+    .row
+      .jumbotron
+        .row
           h1 Welcome to Biking-Guider
           h1.text-center.lead(style="font-size:200%;").
-            <b>It's the best place for your cycling desire</b>
-          p.lead
-            ul
-              .col-md-2
-              li
-                p Your cycling to a new level with Biking-guider!
-              .col-md-2
-              li
-                p Biking-guider is the web application that is designed for cyclists.
-              .col-md-2
-              li
-                p Create your own tour path, view and join the exisiting cycling events.
+            It's the best place for your cycling desire
+          .col-md-1
+          .transbox.col-md-10
+              .margin
+                ul
+                  li
+                    p.opa
+                      | Your cycling to a new level with Biking-guider!
+                  li
+                    p.opa
+                      | Biking-guider is the web application that is designed for cyclists.
+                  li
+                    p.opa
+                      | Create your own tour path, view and join the exisiting cycling events.
+          .col-md-1
+        .row
           p.bigbutton
             a.bigbutton.btn.btn-lg.btn-danger(href='/register', role='button') Register
           br

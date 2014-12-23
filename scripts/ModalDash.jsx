@@ -108,7 +108,6 @@ var ModalDash = React.createClass({
         arrowShow: false,
       };
       if (!error) {
-        $("#delete-button").notify("Tour changed!", options);
         console.log("STATE", this.state);
         console.log("handleChange", this.getUpdatedData());
       }
@@ -215,6 +214,11 @@ var ModalDash = React.createClass({
                   form="changeForm">
                   Delete
                 </button>
+              <button type="button" className="btn btn-primary"
+                data-dismiss="modal" aria-hidden="true"
+                onClick={this.passedDataChangeHandler}>
+                Save and Close
+              </button>
               </div>
             </div>
           </div>

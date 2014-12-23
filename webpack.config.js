@@ -5,7 +5,7 @@ module.exports = {
       route: __dirname + '/scripts/route.jsx'
     },
       output: {
-          path: __dirname + '/public/webpack',
+          path: __dirname + '/public',
           filename: '[name].bundle.js',
           // no real path is required, just pass "/"
           // but it will work with other paths too.

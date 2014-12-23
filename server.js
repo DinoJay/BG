@@ -19,7 +19,7 @@ var comments = require('./routes/commentRoute.js');
 
 // client code bundling
 //var webpackMiddleware = require('webpack-dev-middleware');
-var webpack = require('webpack');
+//var webpack = require('webpack');
 
 var mongoose = require('mongoose');
 var uriUtil = require('mongodb-uri');

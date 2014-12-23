@@ -126,7 +126,7 @@ app.use(sessionMiddleware);
 */
 
 // less to css transformer
-app.use(require('less-middleware')(__dirname + '/public'));
+//app.use(require('less-middleware')(__dirname + '/public'));
 app.use(express.static(path.join(__dirname, '/public')));
 
 //if (development){
